@@ -16,6 +16,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "githubUrl": "https://github.com/15110136/find-iter-app",
     "updates": {
       "fallbackToCacheTimeout": 0
     },
@@ -24,6 +25,7 @@
     ],
     "ios": {
       "supportsTablet": true
-    }
+    },
+    "description": "new vesion"
   }
 }
