@@ -24,7 +24,14 @@
       "**/*"
     ],
     "ios": {
+      "config": {
+        "googleMapsApiKey": "AIzaSyC_j7z4mAaPGNwAB5hxbC-OEc1h6ysgRqs"
+      },
+      "bundleIdentifier": "com.ute.appfinditer",
       "supportsTablet": true
+    },
+    "android": {
+      "package": "com.ute.appfinditer"
     },
     "description": "new vesion"
   }

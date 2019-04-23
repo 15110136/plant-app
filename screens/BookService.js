@@ -84,7 +84,7 @@ class BookService extends Component {
                     <Image source={category.image} />
                   </Badge>
                   <Text medium height={20}>{category.name}</Text>
-                  <Text gray caption>{category.count} products</Text>
+                  <Text gray caption>{category.count} ITer</Text>
                 </Card>
               </TouchableOpacity>
             ))}

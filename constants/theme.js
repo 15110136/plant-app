@@ -7,6 +7,11 @@ const colors = {
   white: "#FFFFFF",
   gray: "#9DA3B4",
   gray2: "#C5CCD6",
+
+  red: '#D83C54',
+  gray3: '#7D818A',
+  black2: '#3D4448',
+  overlay: '#C1BEC0',
 };
 
 const sizes = {
@@ -15,6 +20,8 @@ const sizes = {
   font: 14,
   radius: 6,
   padding: 25,
+  icon: 16,
+  text: 14,
 
   // font sizes
   h1: 26,
