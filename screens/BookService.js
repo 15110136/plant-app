@@ -77,14 +77,14 @@ class BookService extends Component {
             {categories.map(category => (
               <TouchableOpacity
                 key={category.name}
-                // onPress={() => navigation.navigate('Explore', { category })}
+                onPress={() => navigation.navigate('Map')}
               >
                 <Card center middle shadow style={styles.category}>
                   <Badge margin={[0, 0, 15]} size={50} color="rgba(41,216,143,0.20)">
                     <Image source={category.image} />
                   </Badge>
                   <Text medium height={20}>{category.name}</Text>
-                  <Text gray caption>{category.count} products</Text>
+                  <Text gray caption>{category.count} ITer</Text>
                 </Card>
               </TouchableOpacity>
             ))}
