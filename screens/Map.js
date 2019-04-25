@@ -89,6 +89,7 @@ class Map extends Component {
   };
 
   renderHeader() {
+    const { navigation } = this.props
     return (
       <View style={styles.header}>
         <View style={{ flex: 1, justifyContent: "center" }}>
@@ -96,9 +97,8 @@ class Map extends Component {
           <Text style={styles.headerLocation}>ĐH Sư Phạm kỹ thuật</Text>
         </View>
         <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "flex-end" }}
-        >
-          <TouchableWithoutFeedback>
+          style={{ flex: 1, justifyContent: "center", alignItems: "flex-end" }} >
+          <TouchableWithoutFeedback onPress = { () => navigation.navigate('BookService') } >
             <Ionicons name="ios-menu" size={theme.sizes.icon * 1.5} />
           </TouchableWithoutFeedback>
         </View>
@@ -392,8 +392,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     paddingHorizontal: theme.sizes.base * 2,
-    paddingTop: theme.sizes.base * 2.5,
-    paddingBottom: theme.sizes.base * 1.5
+    marginBottom: theme.sizes.base * 1.2
   },
   headerTitle: {
     color: theme.colors.gray3
@@ -401,7 +400,6 @@ const styles = StyleSheet.create({
   headerLocation: {
     fontSize: theme.sizes.font,
     fontWeight: "500",
-    paddingVertical: theme.sizes.base / 3
   },
   map: {
     flex: 3
