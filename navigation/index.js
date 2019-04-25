@@ -15,15 +15,15 @@ import iterMap from '../screens/iterScreens/iterMap';
 
 import { theme } from '../constants';
 
-const role = 'iter'
+const role = 'client'
 
 const client = createStackNavigator({
-  Map,
   Welcome,
   Login,
   SignUp,
   Forgot,
   BookService,
+  Map,
   Explore,
   Product,
   Settings,
@@ -73,4 +73,4 @@ const iter = createStackNavigator({
   }
 })
 
-export default createAppContainer(role ==='iter' ? client : iter);
+export default createAppContainer(role ==='client' ? client : iter);
