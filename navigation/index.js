@@ -11,10 +11,13 @@ import BookService from '../screens/BookService';
 import Product from '../screens/Product';
 import Settings from '../screens/Settings';
 import Map from '../screens/Map';
+import iterMap from '../screens/iterScreens/iterMap';
 
 import { theme } from '../constants';
 
-const screens = createStackNavigator({
+const role = 'iter'
+
+const client = createStackNavigator({
   Map,
   Welcome,
   Login,
@@ -46,4 +49,28 @@ const screens = createStackNavigator({
   }
 });
 
-export default createAppContainer(screens);
+const iter = createStackNavigator({
+  iterMap
+}, {
+  defaultNavigationOptions: {
+    headerStyle: {
+      height: theme.sizes.base * 2.5,
+      backgroundColor: theme.colors.white, // or 'white
+      borderBottomColor: "transparent",
+      elevation: 0, // for android
+    },
+    headerBackImage: <Image source={require('../assets/icons/back.png')} />,
+    headerBackTitle: null,
+    headerLeftContainerStyle: {
+      alignItems: 'center',
+      paddingRight: theme.sizes.base,
+    },
+    headerRightContainerStyle: {
+      alignItems: 'center',
+      marginLeft: theme.sizes.base * 2,
+      paddingRight: theme.sizes.base,
+    },
+  }
+})
+
+export default createAppContainer(role ==='iter' ? client : iter);

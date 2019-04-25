@@ -338,6 +338,7 @@ class Map extends Component {
         {this.renderHeader()}
         <MapView
           initialRegion = { currentPosition }
+          provider='google'
           style={styles.map}>
           {iters.map(iter => (
             <Marker
