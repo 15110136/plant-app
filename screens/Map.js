@@ -156,7 +156,7 @@ class Map extends Component {
       <View style={styles.header}>
         <View style={{ flex: 1, justifyContent: "center" }}>
           <Text style={styles.headerTitle}>Địa điểm của bạn</Text>
-          <Text style={styles.headerLocation}>{geocoding.info ? geocoding.info[0].formatted_address : 'Loading'}</Text>
+          <Text style={styles.headerLocation}>{geocoding.info ? geocoding.info[1].formatted_address : 'Loading'}</Text>
         </View>
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "flex-end" }}
@@ -456,6 +456,7 @@ const styles = StyleSheet.create({
     marginLeft: -theme.sizes.base * 1.2
   },
   headerTitle: {
+    marginBottom: theme.sizes.base *1.2,
     color: theme.colors.gray3
   },
   headerLocation: {
