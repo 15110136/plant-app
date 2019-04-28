@@ -1,10 +1,15 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { Provider } from "react-redux";
+import configStore from './constants/configStore'
+ 
 import { AppLoading, Asset } from 'expo';
 
 import Navigation from './navigation';
 import { Block } from './components';
+
+const store = configStore()
 
 // import all used images
 const images = [
@@ -58,9 +63,11 @@ export default class App extends React.Component {
     }
 
     return (
-      <Block white>
-        <Navigation />
-      </Block>
+      <Provider store={store}>
+        <Block white>
+          <Navigation />
+        </Block>
+      </Provider>
     );
   }
 }

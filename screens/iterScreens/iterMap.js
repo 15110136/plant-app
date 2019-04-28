@@ -1,15 +1,13 @@
 import React, { Component } from 'react'
 import { ActivityIndicator, Keyboard, KeyboardAvoidingView, StyleSheet } from 'react-native'
-import { connect } from 'react-redux'
-import { loginAction } from '../store/actions/index'
 
-import { Button, Block, Input, Text } from '../components';
-import { theme } from '../constants';
+import { Button, Block, Input, Text } from '../../components';
+import { theme } from '../../constants';
 
 const VALID_EMAIL = "nhatthong34@gmail.com";
 const VALID_PASSWORD = "thong123";
 
-class Login extends Component {
+export default class iterMap extends Component {
   state = {
     email: VALID_EMAIL,
     password: VALID_PASSWORD,
@@ -18,16 +16,13 @@ class Login extends Component {
   }
 
   handleLogin() {
-    const { navigation, loginAction } = this.props;
+    const { navigation } = this.props;
     const { email, password } = this.state;
     const errors = [];
-    
 
     Keyboard.dismiss();
     this.setState({ loading: true });
 
-    loginAction()
-    
     // check with backend API or with some static data
     if (email !== VALID_EMAIL) {
       errors.push('email');
@@ -86,19 +81,6 @@ class Login extends Component {
     )
   }
 }
-
-const mapStateToProps = state => {
-  console.log(state)
-  return {
-    auth: state.authenReducer
-  }
-}
-
-const mapDispatchToProps = dispatch => ({
-  loginAction: () => dispatch(loginAction())
- })
-
-export default connect(mapStateToProps, mapDispatchToProps)(Login)
 
 const styles = StyleSheet.create({
   login: {
