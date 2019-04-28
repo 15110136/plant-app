@@ -15,7 +15,7 @@ import iterMap from '../screens/iterScreens/iterMap';
 
 import { theme } from '../constants';
 
-const role = 'client'
+const role = 'iter'
 
 const client = createStackNavigator({
   Welcome,
