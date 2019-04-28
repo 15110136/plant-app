@@ -8,10 +8,14 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback
 } from "react-native";
-import MapView from "react-native-maps";
+
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import Modal from "react-native-modal";
 import Dropdown from "react-native-modal-dropdown";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
+
+import { connect } from 'react-redux'
+import { geocodingAction } from "../store/actions";
 
 import * as theme from "../constants/theme";
 
@@ -67,7 +71,10 @@ class Map extends Component {
   state = {
     hours: {},
     active: null,
-    activeModal: null
+    activeModal: null,
+    region: null,
+    lastLat: null,
+    lastLong: null
   };
 
   componentWillMount() {
@@ -81,6 +88,53 @@ class Map extends Component {
     this.setState({ hours });
   }
 
+  async componentDidMount() {
+
+    this.watchID = await navigator.geolocation.watchPosition(({ coords }) => {
+      let region = {
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        latitudeDelta: 0.00922 * 1.5,
+        longitudeDelta: 0.00421 * 1.5
+      };
+
+      this.onRegionChange(region, region.latitude, region.longitude);
+
+      let geo = {
+        lat: coords.latitude,
+        lng: coords.longitude
+      }
+
+      this.props.geocodingAction(geo)
+    });
+  }
+
+  componentWillUnmount() {
+    navigator.geolocation.clearWatch(this.watchID);
+  }
+
+  onMapPress = e => {
+    let region = {
+      latitude: e.nativeEvent.coordinate.latitude,
+      longitude: e.nativeEvent.coordinate.longitude,
+      latitudeDelta: 0.00922 * 1.5,
+      longitudeDelta: 0.00421 * 1.5
+    };
+    this.onRegionChange(region, region.latitude, region.longitude);
+  };
+
+  __findMe() {
+    navigator.geolocation.getCurrentPosition(({ coords }) => {
+      let region = {
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        latitudeDelta: 0.00922 * 1.5,
+        longitudeDelta: 0.00421 * 1.5
+      };
+      this.onRegionChange(region, region.latitude, region.longitude);
+    });
+  }
+
   handleHours = (id, value) => {
     const { hours } = this.state;
     hours[id] = value;
@@ -88,17 +142,28 @@ class Map extends Component {
     this.setState({ hours });
   };
 
+  onRegionChange(region, lastLat, lastLong) {
+    this.setState({
+      region,
+      lastLat: lastLat || this.state.lastLat,
+      lastLong: lastLong || this.state.lastLong
+    });
+  }
+
   renderHeader() {
-    const { navigation } = this.props
+    const { navigation, geocoding } = this.props;
     return (
       <View style={styles.header}>
         <View style={{ flex: 1, justifyContent: "center" }}>
           <Text style={styles.headerTitle}>Địa điểm của bạn</Text>
-          <Text style={styles.headerLocation}>ĐH Sư Phạm kỹ thuật</Text>
+          <Text style={styles.headerLocation}>{geocoding.info ? geocoding.info[0].formatted_address : 'Loading'}</Text>
         </View>
         <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "flex-end" }} >
-          <TouchableWithoutFeedback onPress = { () => navigation.navigate('BookService') } >
+          style={{ flex: 1, justifyContent: "center", alignItems: "flex-end" }}
+        >
+          <TouchableWithoutFeedback
+            onPress={() => navigation.navigate("BookService")}
+          >
             <Ionicons name="ios-menu" size={theme.sizes.icon * 1.5} />
           </TouchableWithoutFeedback>
         </View>
@@ -251,9 +316,7 @@ class Map extends Component {
             </Text>
           </View>
           <View style={styles.modalInfo}>
-            <View
-              style={[styles.iterIcon, { justifyContent: "flex-start" }]}
-            >
+            <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
               <Ionicons
                 name="ios-pricetag"
                 size={theme.sizes.icon * 1.1}
@@ -264,9 +327,7 @@ class Map extends Component {
                 ${activeModal.price}
               </Text>
             </View>
-            <View
-              style={[styles.iterIcon, { justifyContent: "flex-start" }]}
-            >
+            <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
               <Ionicons
                 name="ios-star"
                 size={theme.sizes.icon * 1.1}
@@ -277,9 +338,7 @@ class Map extends Component {
                 {activeModal.rating}
               </Text>
             </View>
-            <View
-              style={[styles.iterIcon, { justifyContent: "flex-start" }]}
-            >
+            <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
               <Ionicons
                 name="ios-pin"
                 size={theme.sizes.icon * 1.1}
@@ -290,9 +349,7 @@ class Map extends Component {
                 {activeModal.price}km
               </Text>
             </View>
-            <View
-              style={[styles.iterIcon, { justifyContent: "flex-start" }]}
-            >
+            <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
               <Ionicons
                 name="ios-car"
                 size={theme.sizes.icon * 1.3}
@@ -331,20 +388,20 @@ class Map extends Component {
   }
 
   render() {
-    const { currentPosition, iters } = this.props;
-
+    const { iters } = this.props;
+    const { region } = this.state;
     return (
       <View style={styles.container}>
         {this.renderHeader()}
         <MapView
-          initialRegion = { currentPosition }
-          provider='google'
-          style={styles.map}>
+          initialRegion={region}
+          provider={PROVIDER_GOOGLE}
+          showsUserLocation
+          showsCompass
+          style={styles.map}
+        >
           {iters.map(iter => (
-            <Marker
-              key={`marker-${iter.id}`}
-              coordinate={iter.coordinate}
-            >
+            <Marker key={`marker-${iter.id}`} coordinate={iter.coordinate}>
               <TouchableWithoutFeedback
                 onPress={() => this.setState({ active: iter.id })}
               >
@@ -373,16 +430,18 @@ class Map extends Component {
 }
 
 Map.defaultProps = {
-  currentPosition: {
-    latitude: 37.78825,
-    longitude: -122.4324,
-    latitudeDelta: 0.0122,
-    longitudeDelta: 0.0121
-  },
   iters: iterLocations
 };
 
-export default Map;
+const mapStateToProps = state => ({
+  geocoding: state.mapReducer
+})
+
+const mapDispatchToProps = dispatch => ({
+  geocodingAction: geo => dispatch(geocodingAction(geo))
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(Map);
 
 const styles = StyleSheet.create({
   container: {
@@ -393,7 +452,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     paddingHorizontal: theme.sizes.base * 2,
-    marginBottom: theme.sizes.base * 1.2
+    marginBottom: theme.sizes.base * 1.2,
+    marginLeft: -theme.sizes.base * 1.2
   },
   headerTitle: {
     color: theme.colors.gray3
@@ -401,6 +461,7 @@ const styles = StyleSheet.create({
   headerLocation: {
     fontSize: theme.sizes.font,
     fontWeight: "500",
+    width: width - 40 * 2
   },
   map: {
     flex: 3
