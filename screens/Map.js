@@ -152,7 +152,6 @@ class Map extends Component {
 
   renderHeader() {
     const { navigation, geocoding } = this.props;
-    console.log(geocoding.info)
     return (
       <View style={styles.header}>
         <View style={{ flex: 1, justifyContent: "center" }}>
