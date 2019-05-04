@@ -1,9 +1,14 @@
 import React from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Dimensions } from "react-native";
 import StarRating from "react-native-star-rating";
 import { FontAwesome } from "@expo/vector-icons";
 import CheckboxGroup from "react-native-checkbox-group";
-export default class clientReport extends React.Component {
+
+import { theme } from "../constants";
+
+const { width, height } = Dimensions.get('window');
+
+export default class Review extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -22,7 +27,7 @@ export default class clientReport extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <View style={{ flex: 1, alignItems: "center" }}>
+        <View style={styles.head}>
           <Text style={styles.header}>Đánh giá chất lượng dịch vụ</Text>
           <Text style={styles.textThankYou}>Thank you</Text>
           <FontAwesome
@@ -44,7 +49,6 @@ export default class clientReport extends React.Component {
           <Text style={styles.text2} >Điều gì làm bạn chưa hài lòng</Text>
           <CheckboxGroup
             callback={selected => {
-              console.log(selected);
             }}
             iconColor={"#2ef272"}
             iconSize={40}
@@ -75,7 +79,6 @@ export default class clientReport extends React.Component {
 }
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 50,
     flex: 1,
     flexDirection: "column",
     backgroundColor: "#2ef272"
@@ -111,11 +114,16 @@ const styles = StyleSheet.create({
   comment: {
     paddingBottom: 20
   },
+  head: {
+    flex: 1,
+    alignItems: 'center',
+    height: height * .7
+  },
   footer: {
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    height: 250,
+    height: height * .3,
     backgroundColor: "#fff"
   },
   btnSend: {

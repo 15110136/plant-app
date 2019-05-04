@@ -12,12 +12,13 @@ import Product from '../screens/Product';
 import Settings from '../screens/Settings';
 import Map from '../screens/Map';
 import Profile from '../screens/Profile';
+import Review from '../screens/Review';
 import iterMap from '../screens/iterScreens/iterMap';
 import iterProfile from '../screens/iterScreens/iterProfile';
 
 import { theme } from '../constants';
 
-const role = 'iter'
+const role = 'client'
 
 const client = createStackNavigator({
   Welcome,
@@ -26,6 +27,7 @@ const client = createStackNavigator({
   Forgot,
   BookService,
   Map,
+  Review,
   Profile,
   Explore,
   Product,
