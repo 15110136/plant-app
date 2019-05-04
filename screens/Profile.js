@@ -1,11 +1,9 @@
 
-import React, { Component } from 'react'
+import React from 'react'
 import { Card, Icon, Button } from 'react-native-elements'
 import {
   Image,
   ImageBackground,
-  Linking,
-  ListView,
   Platform,
   ScrollView,
   StyleSheet,
@@ -13,8 +11,7 @@ import {
   View,
   TouchableOpacity,
 } from 'react-native'
-import avatar from './assets/avatar.jpg'
-import iconPlace from './assets/placeholder 1.png'
+import avatar from '../assets/images/avatar.png'
 const mainColor='#01C89E'
 
 export default class App extends React.Component {
