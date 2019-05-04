@@ -31,7 +31,10 @@
       "supportsTablet": true
     },
     "android": {
-      "package": "com.ute.appfinditer"
+      "package": "com.ute.appfinditer",
+      "config": {
+        "googleMaps": { "apiKey": "AIzaSyC_j7z4mAaPGNwAB5hxbC-OEc1h6ysgRqs" }   
+      }
     },
     "description": "new vesion"
   }

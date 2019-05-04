@@ -1,99 +1,547 @@
-import React, { Component } from 'react'
-import { ActivityIndicator, Keyboard, KeyboardAvoidingView, StyleSheet } from 'react-native'
+import React, { Component } from "react";
+import {
+  Text,
+  StyleSheet,
+  View,
+  FlatList,
+  Dimensions,
+  TouchableOpacity,
+  TouchableWithoutFeedback
+} from "react-native";
 
-import { Button, Block, Input, Text } from '../../components';
-import { theme } from '../../constants';
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import Modal from "react-native-modal";
+import { FontAwesome, Ionicons } from "@expo/vector-icons";
 
-const VALID_EMAIL = "nhatthong34@gmail.com";
-const VALID_PASSWORD = "thong123";
+import { connect } from "react-redux";
+import { geocodingAction } from "../../store/actions";
 
-export default class iterMap extends Component {
+import * as theme from "../../constants/theme";
+
+const { Marker } = MapView;
+const { height, width } = Dimensions.get("screen");
+const iterLocations = [
+  {
+    id: 1,
+    title: "ITer 1",
+    price: 50000,
+    rating: 4.2,
+    exp: 3,
+    distance: 1,
+    coordinate: {
+      latitude: 10.8506886,
+      longitude: 106.7712568
+    },
+    description: `Kỹ sư phần mềm`,
+    skill: {
+      hardware: "Normal",
+      software: "Very Good"
+    }
+  },
+  {
+    id: 2,
+    title: "ITer 2",
+    price: 7000,
+    rating: 3.8,
+    exp: 2,
+    distance: 2,
+    coordinate: {
+      latitude: 10.8543482,
+      longitude: 106.7475957
+    },
+    description: `Giỏi kỹ năng
+Vững phần cứng`
+  },
+  {
+    id: 3,
+    title: "ITer 3",
+    price: 10000,
+    rating: 4.9,
+    exp: 5,
+    distance: 4000,
+    coordinate: {
+      latitude: 10.815675,
+      longitude: 106.7778735
+    },
+    description: `Dày dạn kinh nghiệm`
+  }
+];
+
+class Map extends Component {
   state = {
-    email: VALID_EMAIL,
-    password: VALID_PASSWORD,
-    errors: [],
-    loading: false,
+    date: new Date(),
+    hours: {},
+    active: null,
+    activeModal: null,
+    region: null,
+    lastLat: null,
+    lastLong: null
+  };
+
+  componentWillMount() {
+    const { iters } = this.props;
+    const hours = {};
+
+    iters.map(iter => {
+      hours[iter.id] = 1;
+    });
+
+    this.setState({ hours });
   }
 
-  handleLogin() {
-    const { navigation } = this.props;
-    const { email, password } = this.state;
-    const errors = [];
+  async componentDidMount() {
+    this.watchID = await navigator.geolocation.watchPosition(({ coords }) => {
+      let region = {
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        latitudeDelta: 0.00922 * 1.5,
+        longitudeDelta: 0.00421 * 1.5
+      };
 
-    Keyboard.dismiss();
-    this.setState({ loading: true });
+      this.onRegionChange(region, region.latitude, region.longitude);
 
-    // check with backend API or with some static data
-    if (email !== VALID_EMAIL) {
-      errors.push('email');
-    }
-    if (password !== VALID_PASSWORD) {
-      errors.push('password');
-    }
+      let geo = {
+        lat: coords.latitude,
+        lng: coords.longitude
+      };
 
-    this.setState({ errors, loading: false });
+      this.props.geocodingAction(geo);
+    });
+  }
 
-    if (!errors.length) {
-      navigation.navigate("BookService");
-    }
+  componentWillUnmount() {
+    navigator.geolocation.clearWatch(this.watchID);
+  }
+
+  onMapPress = e => {
+    let region = {
+      latitude: e.nativeEvent.coordinate.latitude,
+      longitude: e.nativeEvent.coordinate.longitude,
+      latitudeDelta: 0.00922 * 1.5,
+      longitudeDelta: 0.00421 * 1.5
+    };
+    this.onRegionChange(region, region.latitude, region.longitude);
+  };
+
+  __findMe() {
+    navigator.geolocation.getCurrentPosition(({ coords }) => {
+      let region = {
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        latitudeDelta: 0.00922 * 1.5,
+        longitudeDelta: 0.00421 * 1.5
+      };
+      this.onRegionChange(region, region.latitude, region.longitude);
+    });
+  }
+
+  handleHours = (id, value) => {
+    const { hours } = this.state;
+    hours[id] = value;
+
+    this.setState({ hours });
+  };
+
+  handleDateChosen = date => {
+    this.setState({ date });
+  };
+
+  onRegionChange(region, lastLat, lastLong) {
+    this.setState({
+      region,
+      lastLat: lastLat || this.state.lastLat,
+      lastLong: lastLong || this.state.lastLong
+    });
+  }
+
+  renderHeader() {
+    const { navigation, geocoding } = this.props;
+    return (
+      <View style={styles.header}>
+        <View style={styles.headerIcon}>
+          <TouchableWithoutFeedback
+            onPress={() => navigation.navigate("BookService")}
+          >
+            <Ionicons name="ios-menu" size={theme.sizes.icon * 1.5} />
+          </TouchableWithoutFeedback>
+        </View>
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <Text style={styles.headerTitle}>Địa điểm của bạn</Text>
+          <Text style={styles.headerLocation}>
+            {geocoding.info ? geocoding.info[1].formatted_address : "Loading"}
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  renderIter = item => {
+    return (
+      <TouchableOpacity
+        key={`iter-${item.id}`}
+        onPress={() => this.setState({ active: item.id, activeModal: item })}
+      >
+        <View style={[styles.iter, styles.shadow]}>
+          <View style={styles.hours}>
+            <Text style={styles.hoursTitle}>
+              x {item.spots} {item.title}
+            </Text>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={{ paddingRight: theme.sizes.base * 0.25 }}>2</Text>
+              <Text style={{ color: theme.colors.gray2 }}>Km</Text>
+            </View>
+          </View>
+          <View style={styles.iterInfoContainer}>
+            <View style={styles.iterInfo}>
+              <View style={styles.iterIcon}>
+                <Ionicons
+                  name="ios-pricetag"
+                  size={theme.sizes.icon}
+                  color={theme.colors.gray3}
+                />
+                <Text style={{ marginLeft: theme.sizes.base }}>
+                  {" "}
+                  ${item.price}
+                </Text>
+              </View>
+              <View style={styles.iterIcon}>
+                <Ionicons
+                  name="ios-star"
+                  size={theme.sizes.icon}
+                  color={theme.colors.gray3}
+                />
+                <Text style={{ marginLeft: theme.sizes.base }}>
+                  {item.rating}
+                </Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  renderIters = () => {
+    return (
+      <FlatList
+        horizontal
+        pagingEnabled
+        scrollEnabled
+        showsHorizontalScrollIndicator={false}
+        scrollEventThrottle={16}
+        snapToAlignment="center"
+        style={styles.iters}
+        data={this.props.iters}
+        extraData={this.state}
+        keyExtractor={(item, index) => `${item.id}`}
+        renderItem={({ item }) => this.renderIter(item)}
+      />
+    );
+  };
+
+  renderModal() {
+    const { activeModal, hours } = this.state;
+
+    if (!activeModal) return null;
+
+    return (
+      <Modal
+        isVisible
+        useNativeDriver
+        style={styles.modalContainer}
+        backdropColor={theme.colors.overlay}
+        onBackButtonPress={() => this.setState({ activeModal: null })}
+        onBackdropPress={() => this.setState({ activeModal: null })}
+        onSwipeComplete={() => this.setState({ activeModal: null })}
+      >
+        <View style={styles.modal}>
+          <View style={styles.modalHead}>
+            <View style={styles.modalLeft}>
+              <Text style={{ fontSize: theme.sizes.font * 1.5 }}>
+                {activeModal.title}
+              </Text>
+              <View style={{ paddingVertical: theme.sizes.base }}>
+                <Text
+                  style={{
+                    color: theme.colors.gray3,
+                    fontSize: theme.sizes.font * 1.1
+                  }}
+                >
+                  {activeModal.description}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.modalInfo}>
+              <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
+                <Ionicons
+                  name="ios-pricetag"
+                  size={theme.sizes.icon * 1.1}
+                  color={theme.colors.gray3}
+                />
+                <Text style={{ fontSize: theme.sizes.icon * 1.15 }}>
+                  {" "}
+                  ${activeModal.price}
+                </Text>
+              </View>
+              <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
+                <Ionicons
+                  name="ios-star"
+                  size={theme.sizes.icon * 1.1}
+                  color={theme.colors.gray3}
+                />
+                <Text style={{ fontSize: theme.sizes.icon * 1.15 }}>
+                  {" "}
+                  {activeModal.rating}
+                </Text>
+              </View>
+              <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
+                <Ionicons
+                  name="ios-car"
+                  size={theme.sizes.icon * 1.1}
+                  color={theme.colors.gray3}
+                />
+                <Text style={{ fontSize: theme.sizes.icon * 1.15 }}>
+                  {" "}
+                  {activeModal.price}km
+                </Text>
+              </View>
+            </View>
+            <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
+                <Ionicons
+                  name="ios-pin"
+                  size={theme.sizes.icon * 1.3}
+                  color={theme.colors.gray3}
+                />
+                <Text style={{ fontSize: theme.sizes.icon * 1.15 }}>
+                  {" "}
+                  {activeModal.address}
+                </Text>
+              </View>
+          </View>
+
+          <View>
+            <TouchableOpacity style={styles.payBtn}>
+              <Text style={styles.payText}>
+                Proceed to pay ${activeModal.price * hours[activeModal.id]}
+              </Text>
+              <FontAwesome
+                name="angle-right"
+                size={theme.sizes.icon * 1.75}
+                color={theme.colors.white}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    );
   }
 
   render() {
-    const { navigation } = this.props;
-    const { loading, errors } = this.state;
-    const hasErrors = key => errors.includes(key) ? styles.hasErrors : null;
-
+    const { iters } = this.props;
+    const { region } = this.state;
     return (
-      <KeyboardAvoidingView style={styles.login} behavior="padding">
-        <Block padding={[0, theme.sizes.base * 2]}>
-          <Text h1 bold>Login</Text>
-          <Block middle>
-            <Input
-              label="Email"
-              error={hasErrors('email')}
-              style={[styles.input, hasErrors('email')]}
-              defaultValue={this.state.email}
-              onChangeText={text => this.setState({ email: text })}
-            />
-            <Input
-              secure
-              label="Password"
-              error={hasErrors('password')}
-              style={[styles.input, hasErrors('password')]}
-              defaultValue={this.state.password}
-              onChangeText={text => this.setState({ password: text })}
-            />
-            <Button gradient onPress={() => this.handleLogin()}>
-              {loading ?
-                <ActivityIndicator size="small" color="white" /> : 
-                <Text bold white center>Login</Text>
-              }
-            </Button>
-
-            <Button onPress={() => navigation.navigate('Forgot')}>
-              <Text gray caption center style={{ textDecorationLine: 'underline' }}>
-                Forgot your password?
-              </Text>
-            </Button>
-          </Block>
-        </Block>
-      </KeyboardAvoidingView>
-    )
+      <View style={styles.container}>
+        {this.renderHeader()}
+        <MapView
+          initialRegion={region}
+          provider={PROVIDER_GOOGLE}
+          showsUserLocation
+          showsCompass
+          style={styles.map}
+        >
+          {iters.map(iter => (
+            <Marker key={`marker-${iter.id}`} coordinate={iter.coordinate}>
+              <TouchableWithoutFeedback
+                onPress={() => this.setState({ active: iter.id })}
+              >
+                <View
+                  style={[
+                    styles.marker,
+                    styles.shadow,
+                    this.state.active === iter.id ? styles.active : null
+                  ]}
+                >
+                  <Text style={styles.markerPrice}>${iter.price}</Text>
+                  <Text style={styles.markerStatus}>
+                    {" "}
+                    ({iter.free}/{iter.spots})
+                  </Text>
+                </View>
+              </TouchableWithoutFeedback>
+            </Marker>
+          ))}
+        </MapView>
+        {this.renderIters()}
+        {this.renderModal()}
+      </View>
+    );
   }
 }
 
+Map.defaultProps = {
+  iters: iterLocations
+};
+
+const mapStateToProps = state => ({
+  geocoding: state.mapReducer
+});
+
+const mapDispatchToProps = dispatch => ({
+  geocodingAction: geo => dispatch(geocodingAction(geo))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Map);
+
 const styles = StyleSheet.create({
-  login: {
+  container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: theme.colors.white
   },
-  input: {
-    borderRadius: 0,
-    borderWidth: 0,
-    borderBottomColor: theme.colors.gray2,
-    borderBottomWidth: StyleSheet.hairlineWidth,
+  header: {
+    flexDirection: "row",
+    justifyContent: "center",
+    paddingHorizontal: theme.sizes.base * 2,
+    marginBottom: theme.sizes.base * 3
   },
-  hasErrors: {
-    borderBottomColor: theme.colors.accent,
+  headerIcon: {
+    flex: 0.2,
+    justifyContent: "center",
+    alignItems: "flex-start",
+    width: theme.sizes.icon
+  },
+  headerTitle: {
+    marginBottom: theme.sizes.base * 1.2,
+    color: theme.colors.gray3
+  },
+  headerLocation: {
+    width: width - 40 * 2,
+    fontSize: theme.sizes.font,
+    fontWeight: "500"
+  },
+  map: {
+    flex: 4
+  },
+  iters: {
+    position: "absolute",
+    right: 0,
+    left: 0,
+    bottom: 0,
+    paddingBottom: theme.sizes.base * 2
+  },
+  iter: {
+    flexDirection: "row",
+    backgroundColor: theme.colors.white,
+    borderRadius: 6,
+    padding: theme.sizes.base,
+    marginHorizontal: theme.sizes.base,
+    width: width - 24 * 2,
+    height: height * 0.2
+  },
+  marker: {
+    flexDirection: "row",
+    backgroundColor: theme.colors.white,
+    borderRadius: theme.sizes.base * 2,
+    paddingVertical: 12,
+    paddingHorizontal: theme.sizes.base * 2,
+    borderWidth: 1,
+    borderColor: theme.colors.white
+  },
+  markerPrice: { color: theme.colors.red, fontWeight: "bold" },
+  markerStatus: { color: theme.colors.gray3 },
+  shadow: {
+    shadowColor: theme.colors.black,
+    shadowOffset: {
+      width: 0,
+      height: 6
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4
+  },
+  active: {
+    borderColor: theme.colors.red
+  },
+  hours: {
+    flex: 1,
+    flexDirection: "column",
+    marginLeft: theme.sizes.base / 2,
+    justifyContent: "space-evenly"
+  },
+  hoursTitle: {
+    fontSize: theme.sizes.text,
+    fontWeight: "500"
+  },
+  hoursDropdown: {
+    borderRadius: theme.sizes.base / 2,
+    borderColor: theme.colors.overlay,
+    borderWidth: 1,
+    padding: theme.sizes.base,
+    marginRight: theme.sizes.base / 2
+  },
+  hoursDropdownOption: {
+    padding: 5,
+    fontSize: theme.sizes.font * 0.8
+  },
+  hoursDropdownStyle: {
+    marginLeft: -theme.sizes.base,
+    paddingHorizontal: theme.sizes.base / 2,
+    marginVertical: -(theme.sizes.base + 1)
+  },
+  iterInfoContainer: { flex: 1.5, flexDirection: "row" },
+  iterInfo: {
+    justifyContent: "space-evenly",
+    marginHorizontal: theme.sizes.base * 1.5
+  },
+  iterIcon: {
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
+  modalContainer: {
+    margin: 0,
+    justifyContent: "flex-end"
+  },
+  modal: {
+    flexDirection: "column",
+    height: height * 0.75,
+    padding: theme.sizes.base * 2,
+    backgroundColor: theme.colors.white,
+    borderTopLeftRadius: theme.sizes.base,
+    borderTopRightRadius: theme.sizes.base
+  },
+  modalHead: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: theme.sizes.base * .3,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.overlay
+  },
+  modalInfo: {
+    flexDirection: "column",
+    justifyContent: "space-evenly",
+    paddingVertical: theme.sizes.base
+  },
+  modalHours: {
+    paddingVertical: height * 0.11
+  },
+  modalHoursDropdown: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: theme.sizes.base
+  },
+  payBtn: {
+    borderRadius: 6,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: theme.sizes.base * 1.5,
+    backgroundColor: theme.colors.red
+  },
+  payText: {
+    fontWeight: "600",
+    fontSize: theme.sizes.base * 1.5,
+    color: theme.colors.white
   }
-})
+});

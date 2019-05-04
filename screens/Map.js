@@ -241,6 +241,7 @@ class Map extends Component {
   };
 
   renderModal() {
+    const { navigation } = this.props;
     const { activeModal, hours } = this.state;
 
     if (!activeModal) return null;
@@ -321,7 +322,7 @@ class Map extends Component {
           </View>
 
           <View>
-            <TouchableOpacity style={styles.payBtn}>
+            <TouchableOpacity style={styles.payBtn} onPress={() => navigation.navigate('Review') }>
               <Text style={styles.payText}>
                 Proceed to pay ${activeModal.price * hours[activeModal.id]}
               </Text>
