@@ -11,10 +11,6 @@ import { Block } from './components';
 
 const store = configStore()
 
-// import IterReport from './screens/iterScreens/iterReport';
-// import SupportIter from './screens/iterScreens/SupportIterScreen';
-// import Contact from './screens/iterScreens/ContactIterScreen';
-// import ClientReport from './screens/clientReport';
 // import all used images
 const images = [
   require('./assets/icons/back.png'),
@@ -39,13 +35,6 @@ const images = [
   require('./assets/images/avatar.png'),
 ];
 
-// export default class App extends React.Component{
-//   render(){
-//     return(
-//       <SupportIter />
-//     );
-//   }
-// }
 export default class App extends React.Component {
   state = {
     isLoadingComplete: false,
