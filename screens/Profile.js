@@ -49,7 +49,7 @@ export default class App extends React.Component {
                 </View>
               </ImageBackground>
             </View>
-            <TouchableOpacity style={styles.TouchStyle} >
+            <View style={styles.TouchStyle} >
                 <View style={styles.telContainer}>
                   <View style={styles.iconRow}>                   
                       <Icon
@@ -63,19 +63,12 @@ export default class App extends React.Component {
                       <Text style={styles.telNumberText}>+(84) 356658801</Text>
                     </View>
                     <View style={styles.telNameColumn}>                     
-                        <Text style={styles.telNameText}>Mobile</Text>  
+                        <Text style={styles.telNameText}>Di động</Text>  
                     </View>
-                  </View>
-                  <View style={styles.smsRow}>
-                    <Icon
-                      name="textsms"
-                      underlayColor="transparent"
-                      iconStyle={styles.smsIcon}                    
-                    />
-                  </View>
+                  </View>                 
                 </View>
-              </TouchableOpacity>               
-              <TouchableOpacity>
+              </View>               
+              <View>
                 <View style={styles.emailContainer}>
                   <View style={styles.iconRow}>                   
                       <Icon
@@ -89,47 +82,13 @@ export default class App extends React.Component {
                       <Text style={styles.emailText}>Leonhan88@gmail.com</Text>
                     </View>
                     <View style={styles.emailNameColumn}>                      
-                        <Text style={styles.emailNameText}>Personal</Text> 
+                        <Text style={styles.emailNameText}>Cá nhân</Text> 
                     </View>
                   </View>
                 </View>
-              </TouchableOpacity> 
-              <TouchableOpacity>
-                <View style={styles.emailContainer}>
-                  <View style={styles.iconRow}>                   
-                      <Icon
-                        name="code"
-                        underlayColor="transparent"
-                        iconStyle={styles.emailIcon}                      
-                      />                    
-                  </View>
-                  <View style={styles.emailRow}>
-                    <View style={styles.emailColumn}>
-                      <Text style={styles.emailText}>Software engineering, Hardware</Text>
-                    </View>                    
-                  </View>
-                </View>
-              </TouchableOpacity>    
-              <TouchableOpacity>
-                <View style={styles.emailContainer}>
-                  <View style={styles.iconRow}>                   
-                      <Icon
-                        name="timelapse"
-                        underlayColor="transparent"
-                        iconStyle={styles.emailIcon}                      
-                      />                    
-                  </View>
-                  <View style={styles.emailRow}>
-                    <View style={styles.emailColumn}>
-                      <Text style={styles.emailText}>1000 hrs</Text>
-                    </View>   
-                    <View style={styles.emailNameColumn}>                      
-                        <Text style={styles.emailNameText}>Experience hours</Text> 
-                    </View>                   
-                  </View>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity>
+              </View>             
+             
+              <View>
                 <View style={styles.emailContainer}>
                   <View style={styles.iconRow}>                   
                       <Icon
@@ -140,24 +99,46 @@ export default class App extends React.Component {
                   </View>
                   <View style={styles.emailRow}>
                     <View style={styles.emailColumn}>
-                      <Text style={styles.emailText}>4.5</Text>
+                      <Text style={styles.emailText}>50 </Text>
                     </View>   
                     <View style={styles.emailNameColumn}>                      
-                        <Text style={styles.emailNameText}>Rating</Text> 
+                        <Text style={styles.emailNameText}>Điểm</Text> 
                     </View>                   
                   </View>
                 </View>
-              </TouchableOpacity>    
-              <Button 
-                style = {styles.btnLogout}
-                onPress={()=> {}}                
-                color="red"
-                title="Log out"
+              </View>
+              <TouchableOpacity>
+                <View style={styles.emailContainer}>
+                  <View style={styles.iconRow}>                   
+                      <Icon
+                        name="history"
+                        underlayColor="transparent"
+                        iconStyle={styles.emailIcon}                      
+                      />                    
+                  </View>
+                  <View style={styles.historyRow}>
+                    <View style={styles.emailColumn}>
+                      <Text style={styles.emailText}>Lịch sử thực hiện</Text>
+                    </View>                                         
+                  </View>
+                  <View style={styles.smsRow}>
+                    <Icon
+                      name="chevron-right"
+                      underlayColor="transparent"
+                      iconStyle={styles.smsIcon}                    
+                    />
+                  </View>
+                </View>
+              </TouchableOpacity>        
+              <Button
+              style={styles.btnLogout}
+              title="Log out"
+              color="gray"
+              onPress={() => {}}
               />                    
           </Card>
-        </View>
-      
-      </ScrollView>      
+        </View>      
+    </ScrollView>      
     );
   }
 }
@@ -168,7 +149,7 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     flex: 1,
     margin: 0,
-    padding: 0,
+    padding: 0,    
   },
   emailContainer: {
     backgroundColor: '#FFF',
@@ -177,7 +158,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     paddingTop: 15,
     paddingBottom: 15,
-  },
+  }, 
   headerBackgroundImage: {
     paddingBottom: 20,
     paddingTop: 35,
@@ -255,8 +236,7 @@ const styles = StyleSheet.create({
   smsIcon: {
     color: 'gray',
     fontSize: 30,
-  },
-  smsRow: {
+  },  smsRow: {
     flex: 2,
     justifyContent: 'flex-start',
   },
@@ -282,7 +262,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   telRow: {
-    flex: 6,
+    flex: 8,
     flexDirection: 'column',
     justifyContent: 'center',
   },
@@ -314,6 +294,11 @@ const styles = StyleSheet.create({
   },
   emailText: {
     fontSize: 16,
+  },
+  historyRow: {
+    flex: 6,
+    flexDirection: 'column',
+    justifyContent: 'center',
   },
   btnLogout:{
     position: 'relative',
