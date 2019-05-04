@@ -8,16 +8,19 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback
 } from "react-native";
-import MapView from "react-native-maps";
+
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import Modal from "react-native-modal";
-import Dropdown from "react-native-modal-dropdown";
 import { FontAwesome, Ionicons } from "@expo/vector-icons";
+
+import { connect } from "react-redux";
+import { geocodingAction } from "../../store/actions";
 
 import * as theme from "../../constants/theme";
 
 const { Marker } = MapView;
 const { height, width } = Dimensions.get("screen");
-const clientLocations = [
+const iterLocations = [
   {
     id: 1,
     title: "ITer 1",
@@ -29,10 +32,11 @@ const clientLocations = [
       latitude: 10.8506886,
       longitude: 106.7712568
     },
-    description: `Nhiệt tình
-
-vững kỹ năng
-có thể sửa ống nước`
+    description: `Kỹ sư phần mềm`,
+    skill: {
+      hardware: "Normal",
+      software: "Very Good"
+    }
   },
   {
     id: 2,
@@ -63,22 +67,72 @@ Vững phần cứng`
   }
 ];
 
-class iterMap extends Component {
+class Map extends Component {
   state = {
+    date: new Date(),
     hours: {},
     active: null,
-    activeModal: null
+    activeModal: null,
+    region: null,
+    lastLat: null,
+    lastLong: null
   };
 
   componentWillMount() {
-    const { clients } = this.props;
+    const { iters } = this.props;
     const hours = {};
 
-    clients.map(client => {
-      hours[client.id] = 1;
+    iters.map(iter => {
+      hours[iter.id] = 1;
     });
 
     this.setState({ hours });
+  }
+
+  async componentDidMount() {
+    this.watchID = await navigator.geolocation.watchPosition(({ coords }) => {
+      let region = {
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        latitudeDelta: 0.00922 * 1.5,
+        longitudeDelta: 0.00421 * 1.5
+      };
+
+      this.onRegionChange(region, region.latitude, region.longitude);
+
+      let geo = {
+        lat: coords.latitude,
+        lng: coords.longitude
+      };
+
+      this.props.geocodingAction(geo);
+    });
+  }
+
+  componentWillUnmount() {
+    navigator.geolocation.clearWatch(this.watchID);
+  }
+
+  onMapPress = e => {
+    let region = {
+      latitude: e.nativeEvent.coordinate.latitude,
+      longitude: e.nativeEvent.coordinate.longitude,
+      latitudeDelta: 0.00922 * 1.5,
+      longitudeDelta: 0.00421 * 1.5
+    };
+    this.onRegionChange(region, region.latitude, region.longitude);
+  };
+
+  __findMe() {
+    navigator.geolocation.getCurrentPosition(({ coords }) => {
+      let region = {
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        latitudeDelta: 0.00922 * 1.5,
+        longitudeDelta: 0.00421 * 1.5
+      };
+      this.onRegionChange(region, region.latitude, region.longitude);
+    });
   }
 
   handleHours = (id, value) => {
@@ -88,44 +142,53 @@ class iterMap extends Component {
     this.setState({ hours });
   };
 
+  handleDateChosen = date => {
+    this.setState({ date });
+  };
+
+  onRegionChange(region, lastLat, lastLong) {
+    this.setState({
+      region,
+      lastLat: lastLat || this.state.lastLat,
+      lastLong: lastLong || this.state.lastLong
+    });
+  }
+
   renderHeader() {
-    const { navigation } = this.props;
+    const { navigation, geocoding } = this.props;
     return (
       <View style={styles.header}>
-        <View style={{ flex: 1, justifyContent: "center" }}>
-          <Text style={styles.headerTitle}>Địa điểm của bạn</Text>
-          <Text style={styles.headerLocation}>ĐH Sư Phạm kỹ thuật</Text>
-        </View>
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "flex-end" }}
-        >
+        <View style={styles.headerIcon}>
           <TouchableWithoutFeedback
             onPress={() => navigation.navigate("BookService")}
           >
             <Ionicons name="ios-menu" size={theme.sizes.icon * 1.5} />
           </TouchableWithoutFeedback>
         </View>
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <Text style={styles.headerTitle}>Địa điểm của bạn</Text>
+          <Text style={styles.headerLocation}>
+            {geocoding.info ? geocoding.info[1].formatted_address : "Loading"}
+          </Text>
+        </View>
       </View>
     );
   }
 
-  renderClient = item => {
-    const { hours } = this.state;
-    const totalPrice = item.price * item.distance;
-
+  renderIter = item => {
     return (
-      <TouchableWithoutFeedback
-        key={`client-${item.id}`}
-        onPress={() => this.setState({ active: item.id })}
+      <TouchableOpacity
+        key={`iter-${item.id}`}
+        onPress={() => this.setState({ active: item.id, activeModal: item })}
       >
-        <View style={[styles.client, styles.shadow]}>
+        <View style={[styles.iter, styles.shadow]}>
           <View style={styles.hours}>
             <Text style={styles.hoursTitle}>
               x {item.spots} {item.title}
             </Text>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              {this.renderHours(item.id)}
-              <Text style={{ color: theme.colors.gray2 }}>hrs</Text>
+              <Text style={{ paddingRight: theme.sizes.base * 0.25 }}>2</Text>
+              <Text style={{ color: theme.colors.gray2 }}>Km</Text>
             </View>
           </View>
           <View style={styles.iterInfoContainer}>
@@ -148,43 +211,17 @@ class iterMap extends Component {
                   color={theme.colors.gray3}
                 />
                 <Text style={{ marginLeft: theme.sizes.base }}>
-                  {" "}
                   {item.rating}
                 </Text>
               </View>
             </View>
-            <TouchableOpacity
-              style={styles.buy}
-              onPress={() => this.setState({ activeModal: item })}
-            >
-              <View style={styles.buyTotal}>
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <FontAwesome
-                    name="dollar"
-                    size={theme.sizes.icon * 1.25}
-                    color={theme.colors.white}
-                  />
-                  <Text style={styles.buyTotalPrice}>{totalPrice}</Text>
-                </View>
-                <Text style={{ color: theme.colors.white }}>
-                  {item.price}x{hours[item.id]} hrs
-                </Text>
-              </View>
-              <View style={styles.buyBtn}>
-                <FontAwesome
-                  name="angle-right"
-                  size={theme.sizes.icon * 1.75}
-                  color={theme.colors.white}
-                />
-              </View>
-            </TouchableOpacity>
           </View>
         </View>
-      </TouchableWithoutFeedback>
+      </TouchableOpacity>
     );
   };
 
-  renderClients = () => {
+  renderIters = () => {
     return (
       <FlatList
         horizontal
@@ -193,34 +230,14 @@ class iterMap extends Component {
         showsHorizontalScrollIndicator={false}
         scrollEventThrottle={16}
         snapToAlignment="center"
-        style={styles.clients}
-        data={this.props.clients}
+        style={styles.iters}
+        data={this.props.iters}
         extraData={this.state}
         keyExtractor={(item, index) => `${item.id}`}
-        renderItem={({ item }) => this.renderClient(item)}
+        renderItem={({ item }) => this.renderIter(item)}
       />
     );
   };
-
-  renderHours(id) {
-    const { hours } = this.state;
-    const availableHours = [1, 2, 3, 4, 5, 6];
-
-    return (
-      <Dropdown
-        defaultIndex={0}
-        options={availableHours}
-        style={styles.hoursDropdown}
-        defaultValue={`0${hours[id]}:00` || "01:00"}
-        dropdownStyle={styles.hoursDropdownStyle}
-        onSelect={(index, value) => this.handleHours(id, value)}
-        renderRow={option => (
-          <Text style={styles.hoursDropdownOption}>{`0${option}:00`}</Text>
-        )}
-        renderButtonText={option => `0${option}:00`}
-      />
-    );
-  }
 
   renderModal() {
     const { activeModal, hours } = this.state;
@@ -238,76 +255,70 @@ class iterMap extends Component {
         onSwipeComplete={() => this.setState({ activeModal: null })}
       >
         <View style={styles.modal}>
-          <View>
-            <Text style={{ fontSize: theme.sizes.font * 1.5 }}>
-              {activeModal.title}
-            </Text>
-          </View>
-          <View style={{ paddingVertical: theme.sizes.base }}>
-            <Text
-              style={{
-                color: theme.colors.gray3,
-                fontSize: theme.sizes.font * 1.1
-              }}
-            >
-              {activeModal.description}
-            </Text>
-          </View>
-          <View style={styles.modalInfo}>
-            <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
-              <Ionicons
-                name="ios-pricetag"
-                size={theme.sizes.icon * 1.1}
-                color={theme.colors.gray3}
-              />
-              <Text style={{ fontSize: theme.sizes.icon * 1.15 }}>
-                {" "}
-                ${activeModal.price}
+          <View style={styles.modalHead}>
+            <View style={styles.modalLeft}>
+              <Text style={{ fontSize: theme.sizes.font * 1.5 }}>
+                {activeModal.title}
               </Text>
+              <View style={{ paddingVertical: theme.sizes.base }}>
+                <Text
+                  style={{
+                    color: theme.colors.gray3,
+                    fontSize: theme.sizes.font * 1.1
+                  }}
+                >
+                  {activeModal.description}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.modalInfo}>
+              <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
+                <Ionicons
+                  name="ios-pricetag"
+                  size={theme.sizes.icon * 1.1}
+                  color={theme.colors.gray3}
+                />
+                <Text style={{ fontSize: theme.sizes.icon * 1.15 }}>
+                  {" "}
+                  ${activeModal.price}
+                </Text>
+              </View>
+              <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
+                <Ionicons
+                  name="ios-star"
+                  size={theme.sizes.icon * 1.1}
+                  color={theme.colors.gray3}
+                />
+                <Text style={{ fontSize: theme.sizes.icon * 1.15 }}>
+                  {" "}
+                  {activeModal.rating}
+                </Text>
+              </View>
+              <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
+                <Ionicons
+                  name="ios-car"
+                  size={theme.sizes.icon * 1.1}
+                  color={theme.colors.gray3}
+                />
+                <Text style={{ fontSize: theme.sizes.icon * 1.15 }}>
+                  {" "}
+                  {activeModal.price}km
+                </Text>
+              </View>
             </View>
             <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
-              <Ionicons
-                name="ios-star"
-                size={theme.sizes.icon * 1.1}
-                color={theme.colors.gray3}
-              />
-              <Text style={{ fontSize: theme.sizes.icon * 1.15 }}>
-                {" "}
-                {activeModal.rating}
-              </Text>
-            </View>
-            <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
-              <Ionicons
-                name="ios-pin"
-                size={theme.sizes.icon * 1.1}
-                color={theme.colors.gray3}
-              />
-              <Text style={{ fontSize: theme.sizes.icon * 1.15 }}>
-                {" "}
-                {activeModal.price}km
-              </Text>
-            </View>
-            <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
-              <Ionicons
-                name="ios-car"
-                size={theme.sizes.icon * 1.3}
-                color={theme.colors.gray3}
-              />
-              <Text style={{ fontSize: theme.sizes.icon * 1.15 }}>
-                {" "}
-                {activeModal.free}/{activeModal.spots}
-              </Text>
-            </View>
+                <Ionicons
+                  name="ios-pin"
+                  size={theme.sizes.icon * 1.3}
+                  color={theme.colors.gray3}
+                />
+                <Text style={{ fontSize: theme.sizes.icon * 1.15 }}>
+                  {" "}
+                  {activeModal.address}
+                </Text>
+              </View>
           </View>
-          <View style={styles.modalHours}>
-            <Text style={{ textAlign: "center", fontWeight: "500" }}>
-              Choose your Booking Period:
-            </Text>
-            <View style={styles.modalHoursDropdown}>
-              {this.renderHours(activeModal.id)}
-              <Text style={{ color: theme.colors.gray3 }}>hrs</Text>
-            </View>
-          </View>
+
           <View>
             <TouchableOpacity style={styles.payBtn}>
               <Text style={styles.payText}>
@@ -326,56 +337,63 @@ class iterMap extends Component {
   }
 
   render() {
-    const { currentPosition, clients } = this.props;
-
+    const { iters } = this.props;
+    const { region } = this.state;
     return (
       <View style={styles.container}>
         {this.renderHeader()}
         <MapView
-          initialRegion={currentPosition}
-          provider="google"
+          initialRegion={region}
+          provider={PROVIDER_GOOGLE}
+          showsUserLocation
+          showsCompass
           style={styles.map}
         >
-          {clients.map(client => (
-            <Marker key={`marker-${client.id}`} coordinate={client.coordinate}>
+          {iters.map(iter => (
+            <Marker key={`marker-${iter.id}`} coordinate={iter.coordinate}>
               <TouchableWithoutFeedback
-                onPress={() => this.setState({ active: client.id })}
+                onPress={() => this.setState({ active: iter.id })}
               >
                 <View
                   style={[
                     styles.marker,
                     styles.shadow,
-                    this.state.active === client.id ? styles.active : null
+                    this.state.active === iter.id ? styles.active : null
                   ]}
                 >
-                  <Text style={styles.markerPrice}>${client.price}</Text>
+                  <Text style={styles.markerPrice}>${iter.price}</Text>
                   <Text style={styles.markerStatus}>
                     {" "}
-                    ({client.free}/{client.spots})
+                    ({iter.free}/{iter.spots})
                   </Text>
                 </View>
               </TouchableWithoutFeedback>
             </Marker>
           ))}
         </MapView>
-        {this.renderClients()}
+        {this.renderIters()}
         {this.renderModal()}
       </View>
     );
   }
 }
 
-iterMap.defaultProps = {
-  currentPosition: {
-    latitude: 37.78825,
-    longitude: -122.4324,
-    latitudeDelta: 0.0122,
-    longitudeDelta: 0.0121
-  },
-  clients: clientLocations
+Map.defaultProps = {
+  iters: iterLocations
 };
 
-export default iterMap;
+const mapStateToProps = state => ({
+  geocoding: state.mapReducer
+});
+
+const mapDispatchToProps = dispatch => ({
+  geocodingAction: geo => dispatch(geocodingAction(geo))
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Map);
 
 const styles = StyleSheet.create({
   container: {
@@ -386,55 +404,41 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     paddingHorizontal: theme.sizes.base * 2,
-    marginBottom: theme.sizes.base * 1.2
+    marginBottom: theme.sizes.base * 3
+  },
+  headerIcon: {
+    flex: 0.2,
+    justifyContent: "center",
+    alignItems: "flex-start",
+    width: theme.sizes.icon
   },
   headerTitle: {
+    marginBottom: theme.sizes.base * 1.2,
     color: theme.colors.gray3
   },
   headerLocation: {
+    width: width - 40 * 2,
     fontSize: theme.sizes.font,
     fontWeight: "500"
   },
   map: {
-    flex: 3
+    flex: 4
   },
-  clients: {
+  iters: {
     position: "absolute",
     right: 0,
     left: 0,
     bottom: 0,
     paddingBottom: theme.sizes.base * 2
   },
-  client: {
+  iter: {
     flexDirection: "row",
     backgroundColor: theme.colors.white,
     borderRadius: 6,
     padding: theme.sizes.base,
-    marginHorizontal: theme.sizes.base * 2,
-    width: width - 24 * 2
-  },
-  buy: {
-    flex: 1,
-    flexDirection: "row",
-    paddingHorizontal: theme.sizes.base * 1.5,
-    paddingVertical: theme.sizes.base,
-    backgroundColor: theme.colors.red,
-    borderRadius: 6
-  },
-  buyTotal: {
-    flex: 1,
-    justifyContent: "space-evenly"
-  },
-  buyTotalPrice: {
-    color: theme.colors.white,
-    fontSize: theme.sizes.base * 2,
-    fontWeight: "600",
-    paddingLeft: theme.sizes.base / 4
-  },
-  buyBtn: {
-    flex: 0.5,
-    justifyContent: "center",
-    alignItems: "flex-end"
+    marginHorizontal: theme.sizes.base,
+    width: width - 24 * 2,
+    height: height * 0.2
   },
   marker: {
     flexDirection: "row",
@@ -506,14 +510,17 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: theme.sizes.base,
     borderTopRightRadius: theme.sizes.base
   },
-  modalInfo: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    paddingVertical: theme.sizes.base,
-    borderTopWidth: 1,
+  modalHead: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: theme.sizes.base * .3,
     borderBottomWidth: 1,
-    borderTopColor: theme.colors.overlay,
     borderBottomColor: theme.colors.overlay
+  },
+  modalInfo: {
+    flexDirection: "column",
+    justifyContent: "space-evenly",
+    paddingVertical: theme.sizes.base
   },
   modalHours: {
     paddingVertical: height * 0.11
