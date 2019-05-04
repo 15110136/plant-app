@@ -88,7 +88,6 @@ class Login extends Component {
 }
 
 const mapStateToProps = state => {
-  console.log(state)
   return {
     auth: state.authenReducer
   }
