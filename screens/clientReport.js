@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import StarRating from "react-native-star-rating";
-import { FontAwesome } from "react-native-vector-icons";
+import { FontAwesome } from "@expo/vector-icons";
 import CheckboxGroup from "react-native-checkbox-group";
 export default class clientReport extends React.Component {
   constructor(props) {

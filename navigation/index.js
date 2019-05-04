@@ -20,12 +20,12 @@ import { theme } from '../constants';
 const role = 'iter'
 
 const client = createStackNavigator({
-  Map,
   Welcome,
   Login,
   SignUp,
   Forgot,
   BookService,
+  Map,
   Profile,
   Explore,
   Product,
