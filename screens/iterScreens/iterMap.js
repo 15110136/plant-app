@@ -89,7 +89,7 @@ class iterMap extends Component {
   };
 
   renderHeader() {
-    const { navigation } = this.props
+    const { navigation } = this.props;
     return (
       <View style={styles.header}>
         <View style={{ flex: 1, justifyContent: "center" }}>
@@ -97,8 +97,11 @@ class iterMap extends Component {
           <Text style={styles.headerLocation}>ĐH Sư Phạm kỹ thuật</Text>
         </View>
         <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "flex-end" }} >
-          <TouchableWithoutFeedback onPress = { () => navigation.navigate('BookService') } >
+          style={{ flex: 1, justifyContent: "center", alignItems: "flex-end" }}
+        >
+          <TouchableWithoutFeedback
+            onPress={() => navigation.navigate("BookService")}
+          >
             <Ionicons name="ios-menu" size={theme.sizes.icon * 1.5} />
           </TouchableWithoutFeedback>
         </View>
@@ -251,9 +254,7 @@ class iterMap extends Component {
             </Text>
           </View>
           <View style={styles.modalInfo}>
-            <View
-              style={[styles.iterIcon, { justifyContent: "flex-start" }]}
-            >
+            <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
               <Ionicons
                 name="ios-pricetag"
                 size={theme.sizes.icon * 1.1}
@@ -264,9 +265,7 @@ class iterMap extends Component {
                 ${activeModal.price}
               </Text>
             </View>
-            <View
-              style={[styles.iterIcon, { justifyContent: "flex-start" }]}
-            >
+            <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
               <Ionicons
                 name="ios-star"
                 size={theme.sizes.icon * 1.1}
@@ -277,9 +276,7 @@ class iterMap extends Component {
                 {activeModal.rating}
               </Text>
             </View>
-            <View
-              style={[styles.iterIcon, { justifyContent: "flex-start" }]}
-            >
+            <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
               <Ionicons
                 name="ios-pin"
                 size={theme.sizes.icon * 1.1}
@@ -290,9 +287,7 @@ class iterMap extends Component {
                 {activeModal.price}km
               </Text>
             </View>
-            <View
-              style={[styles.iterIcon, { justifyContent: "flex-start" }]}
-            >
+            <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
               <Ionicons
                 name="ios-car"
                 size={theme.sizes.icon * 1.3}
@@ -337,14 +332,12 @@ class iterMap extends Component {
       <View style={styles.container}>
         {this.renderHeader()}
         <MapView
-          initialRegion = { currentPosition }
-          provider='google'
-          style={styles.map}>
+          initialRegion={currentPosition}
+          provider="google"
+          style={styles.map}
+        >
           {clients.map(client => (
-            <Marker
-              key={`marker-${client.id}`}
-              coordinate={client.coordinate}
-            >
+            <Marker key={`marker-${client.id}`} coordinate={client.coordinate}>
               <TouchableWithoutFeedback
                 onPress={() => this.setState({ active: client.id })}
               >
@@ -400,7 +393,7 @@ const styles = StyleSheet.create({
   },
   headerLocation: {
     fontSize: theme.sizes.font,
-    fontWeight: "500",
+    fontWeight: "500"
   },
   map: {
     flex: 3
