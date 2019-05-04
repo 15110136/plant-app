@@ -18,19 +18,19 @@ import { theme } from '../constants';
 const role = 'iter'
 
 const client = createStackNavigator({
+  Map,
   Welcome,
   Login,
   SignUp,
   Forgot,
   BookService,
-  Map,
   Explore,
   Product,
   Settings,
 }, {
   defaultNavigationOptions: {
     headerStyle: {
-      height: theme.sizes.base * 2.5,
+      height: theme.sizes.base * 2.25,
       backgroundColor: theme.colors.white, // or 'white
       borderBottomColor: "transparent",
       elevation: 0, // for android
