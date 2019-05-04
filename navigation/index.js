@@ -30,7 +30,7 @@ const client = createStackNavigator({
 }, {
   defaultNavigationOptions: {
     headerStyle: {
-      height: theme.sizes.base * 2.5,
+      height: theme.sizes.base * 2.25,
       backgroundColor: theme.colors.white, // or 'white
       borderBottomColor: "transparent",
       elevation: 0, // for android
