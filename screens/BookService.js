@@ -57,7 +57,7 @@ class BookService extends Component {
         </Block>
         <Block flex={false} row center space="between" style={styles.header}>
           <Text h1 bold>Chọn ITer phù hợp</Text>
-          <Button onPress={() => navigation.navigate('Profile')}>
+          <Button onPress={() => navigation.navigate('Settings')}>
             <Image
               source={profile.avatar}
               style={styles.avatar}

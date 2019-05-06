@@ -30,12 +30,12 @@ export default class SignUp extends Component {
 
     if (!errors.length) {
       Alert.alert(
-        'Success!',
-        'Your account has been created',
+        'Thành công!',
+        'Tài khoản của bạn được tạo',
         [
           {
-            text: 'Continue', onPress: () => {
-              navigation.navigate('Browse')
+            text: 'Tiếp tục', onPress: () => {
+              navigation.navigate('BookService')
             }
           }
         ],
@@ -52,7 +52,7 @@ export default class SignUp extends Component {
     return (
       <KeyboardAvoidingView style={styles.signup} behavior="padding">
         <Block padding={[0, theme.sizes.base * 2]}>
-          <Text h1 bold>Sign Up</Text>
+          <Text h1 bold>Đăng ký</Text>
           <Block middle>
             <Input
               email
@@ -63,7 +63,7 @@ export default class SignUp extends Component {
               onChangeText={text => this.setState({ email: text })}
             />
             <Input
-              label="Username"
+              label="Tên đăng nhập"
               error={hasErrors('username')}
               style={[styles.input, hasErrors('username')]}
               defaultValue={this.state.username}
@@ -71,7 +71,7 @@ export default class SignUp extends Component {
             />
             <Input
               secure
-              label="Password"
+              label="Mật khẩu"
               error={hasErrors('password')}
               style={[styles.input, hasErrors('password')]}
               defaultValue={this.state.password}

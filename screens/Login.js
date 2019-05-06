@@ -3,8 +3,9 @@ import { ActivityIndicator, Keyboard, KeyboardAvoidingView, StyleSheet } from 'r
 import { connect } from 'react-redux'
 import { loginAction } from '../store/actions/index'
 
-import { Button, Block, Input, Text } from '../components';
+import { Button, Block, Input, Text, Switch } from '../components';
 import { theme } from '../constants';
+import { storeItem } from "../utils/asyncStorage";
 
 const VALID_EMAIL = "nhatthong34@gmail.com";
 const VALID_PASSWORD = "thong123";
@@ -15,6 +16,7 @@ class Login extends Component {
     password: VALID_PASSWORD,
     errors: [],
     loading: false,
+    isIter: false
   }
 
   handleLogin() {
@@ -39,7 +41,10 @@ class Login extends Component {
     this.setState({ errors, loading: false });
 
     if (!errors.length) {
-      navigation.navigate("BookService");
+      storeItem('login', true).then(res => {
+        console.log('store success')
+        navigation.navigate("BookService");
+      }).catch(error => { console.log(error) })
     }
   }
 
@@ -51,7 +56,7 @@ class Login extends Component {
     return (
       <KeyboardAvoidingView style={styles.login} behavior="padding">
         <Block padding={[0, theme.sizes.base * 2]}>
-          <Text h1 bold>Login</Text>
+          <Text h1 bold>Đăng nhập</Text>
           <Block middle>
             <Input
               label="Email"
@@ -62,7 +67,7 @@ class Login extends Component {
             />
             <Input
               secure
-              label="Password"
+              label="Mật khẩu"
               error={hasErrors('password')}
               style={[styles.input, hasErrors('password')]}
               defaultValue={this.state.password}
@@ -71,13 +76,21 @@ class Login extends Component {
             <Button gradient onPress={() => this.handleLogin()}>
               {loading ?
                 <ActivityIndicator size="small" color="white" /> : 
-                <Text bold white center>Login</Text>
+                <Text bold white center>Đăng nhập</Text>
               }
             </Button>
 
+            <Block row center space="around" style={{ marginBottom: theme.sizes.base * 2 }}>
+              <Text h2 black bold>Bạn là Iter</Text>
+              <Switch
+                value={this.state.isIter}
+                onValueChange={value => this.setState({ isIter: value })}
+              />
+            </Block>
+
             <Button onPress={() => navigation.navigate('Forgot')}>
               <Text gray caption center style={{ textDecorationLine: 'underline' }}>
-                Forgot your password?
+                Quên mật khẩu?
               </Text>
             </Button>
           </Block>
