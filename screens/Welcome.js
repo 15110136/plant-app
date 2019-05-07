@@ -3,6 +3,7 @@ import { Animated, Dimensions, Image, FlatList, Modal, StyleSheet, ScrollView } 
 
 import { Button, Block, Text } from '../components';
 import { theme } from '../constants';
+import { retrieveItem } from '../utils/asyncStorage'
 
 const { width, height } = Dimensions.get('window');
 
@@ -21,7 +22,7 @@ class Welcome extends Component {
     return (
       <Modal animationType="slide" visible={this.state.showTerms}>
         <Block padding={[theme.sizes.padding * 2, theme.sizes.padding]} space="between">
-          <Text h2 light>Terms of Service</Text>
+          <Text h2 light>Điều khoản dịch vụ</Text>
 
           <ScrollView style={{ marginVertical: theme.sizes.padding }}>
             <Text caption gray height={24} style={{ marginBottom: theme.sizes.base }}>
@@ -121,19 +122,28 @@ class Welcome extends Component {
       </Block>
     )
   }
+
+  componentWillMount () {
+    retrieveItem('login')
+      .then(isLogin => {
+        if (isLogin) this.props.navigation.navigate('BookService')
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }
   
   render() {
     const { navigation } = this.props;
-
     return (
       <Block>
         <Block center bottom flex={0.4}>
           <Text h1 center bold>
-            Your Home.
-            <Text h1 primary> Hire & Find</Text>
+            Hire &
+            <Text h1 primary>Find</Text>
           </Text>
           <Text h3 gray2 style={{ marginTop: theme.sizes.padding / 2 }}>
-            Enjoy the experience.
+            Cảm ơn sự lựa chọn của bạn
           </Text>
         </Block>
         <Block center middle>
@@ -142,10 +152,10 @@ class Welcome extends Component {
         </Block>
         <Block middle flex={0.5} margin={[0, theme.sizes.padding * 2]}>
           <Button gradient onPress={() => navigation.navigate('Login')}>
-            <Text center semibold white>Login</Text>
+            <Text center semibold white>Đăng nhập</Text>
           </Button>
           <Button shadow onPress={() => navigation.navigate('SignUp')}>
-            <Text center semibold>Signup</Text>
+            <Text center semibold>Đăng ký</Text>
           </Button>
           <Button onPress={() => this.setState({ showTerms: true })}>
             <Text center caption gray>Terms of service</Text>
