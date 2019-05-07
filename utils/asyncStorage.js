@@ -22,4 +22,12 @@ const retrieveItem = async (key) => {
   return
 }
 
-export { storeItem, retrieveItem }
+const clearItem = async (key) => {
+  try {
+    await AsyncStorage.removeItem(key)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export { storeItem, retrieveItem, clearItem }

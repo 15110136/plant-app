@@ -11,10 +11,18 @@ import {
   View,
   TouchableOpacity,
 } from 'react-native'
+import { AntDesign } from "@expo/vector-icons";
 import avatar from '../assets/images/avatar.png'
+import { theme } from '../constants';
+import { clearItem } from "../utils/asyncStorage";
 const mainColor='#01C89E'
 
 export default class App extends React.Component {
+
+  handleLogout = async () => {
+    await clearItem('login')
+    this.props.navigation.navigate('Login')
+  }
   render() {
     return (
       <ScrollView style={styles.scroll}>
@@ -26,6 +34,13 @@ export default class App extends React.Component {
                 blurRadius={10}
                 source={avatar}
               >
+                <AntDesign
+                  style={styles.btnLogout}
+                  name='logout'
+                  size={theme.sizes.icon * 2.3}
+                  color='black'
+                  onPress={this.handleLogout}
+                  />
                 <View style={styles.headerColumn}>
                   <Image
                     style={styles.userImage}
@@ -129,13 +144,7 @@ export default class App extends React.Component {
                     />
                   </View>
                 </View>
-              </TouchableOpacity>        
-              <Button
-              style={styles.btnLogout}
-              title="Log out"
-              color="gray"
-              onPress={() => {}}
-              />                    
+              </TouchableOpacity>
           </Card>
         </View>      
     </ScrollView>      
@@ -160,6 +169,7 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
   }, 
   headerBackgroundImage: {
+    position: 'relative',
     paddingBottom: 20,
     paddingTop: 35,
   },
@@ -301,11 +311,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   btnLogout:{
-    position: 'relative',
-    bottom:0,
-    left:0,
-    right:0,
-    alignItems: 'stretch',
-    fontSize:100,
+    position: 'absolute',
+    top: 10,
+    right: 10
   }
 })
