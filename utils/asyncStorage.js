@@ -1,10 +1,11 @@
 import { AsyncStorage } from "react-native";
 
-const storeItem = async (storage) => {
+const storeItem = async (key, item) => {
   try {
       //we want to wait for the Promise returned by AsyncStorage.setItem()
       //to be resolved to the actual value before returning the value
-      await AsyncStorage.multiSet(storage);
+      var jsonOfItem = await AsyncStorage.setItem(key, JSON.stringify(item));
+      return jsonOfItem;
   } catch (error) {
     console.log(error.message);
   }
@@ -12,14 +13,9 @@ const storeItem = async (storage) => {
 
 const retrieveItem = async (key) => {
   try {
-    let res = []
-    await AsyncStorage.getItem(key).then(data => {
-      data.map((val, index) => {
-        res.push([key[index], val[1]])
-      })
-    })
-
-    return JSON.parse(res)
+    const retrievedItem =  await AsyncStorage.getItem(key);
+    const item = JSON.parse(retrievedItem);
+    return item;
   } catch (error) {
     console.log(error.message);
   }
@@ -28,9 +24,7 @@ const retrieveItem = async (key) => {
 
 const clearItem = async (key) => {
   try {
-    await AsyncStorage.multiRemove(key, (err) => {
-      console.log('local storage is removed')
-    })
+    await AsyncStorage.removeItem(key)
   } catch (error) {
     console.log(error)
   }

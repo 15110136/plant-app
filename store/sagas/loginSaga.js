@@ -15,15 +15,17 @@ export function* watchLoginAsync () {
 //   })
 // }
 
-const login = (isIter) => ({
-  token: '123123',
-  isIter: isIter
-})
+const login = () => (
+  // axios({
+  //   method: 'GET',
+  //   url: API_HOST
+  // })
+  1
+)
 
-function* loginAsync (action) {
-  let { isIter } = action
+function* loginAsync () {
   try {
-    const data = yield call(login(isIter))
+    const data = yield call(login)
     yield put({
       type: LOGIN_SUCCESS,
       payload: data

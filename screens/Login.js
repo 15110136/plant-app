@@ -20,19 +20,28 @@ class Login extends Component {
   }
 
   handleLogin() {
-    const { navigation, loginAction, auth } = this.props;
-    const { isIter } = this.state;
+    const { navigation, loginAction } = this.props;
+    const { email, password } = this.state;
     const errors = [];
     
 
     Keyboard.dismiss();
     this.setState({ loading: true });
-    loginAction(isIter)
+
+    loginAction()
+    
+    // check with backend API or with some static data
+    if (email !== VALID_EMAIL) {
+      errors.push('email');
+    }
+    if (password !== VALID_PASSWORD) {
+      errors.push('password');
+    }
+
     this.setState({ errors, loading: false });
 
-    if (auth.isLogined) {
-      let storage = [['login', JSON.stringify(true)], ['isIter', JSON.stringify(isIter)]]
-      storeItem(storage).then(res => {
+    if (!errors.length) {
+      storeItem('login', true).then(res => {
         console.log('store success')
         navigation.navigate("BookService");
       }).catch(error => { console.log(error) })
@@ -98,7 +107,7 @@ const mapStateToProps = state => {
 }
 
 const mapDispatchToProps = dispatch => ({
-  loginAction: (isIter) => dispatch(loginAction(isIter))
+  loginAction: () => dispatch(loginAction())
  })
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login)
