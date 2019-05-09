@@ -3,6 +3,7 @@ import { LOGIN, LOGIN_SUCCESS, LOGIN_FAIL } from "../../actionType";
 const initialState = {
   isLogined: false,
   isFetching: false,
+  isIter: false,
   token: 0,
 }
 
@@ -17,7 +18,9 @@ export default loginReducer = (state = initialState, action) => {
       return {
         ...state,
         isFetching: false,
-        token: action.payload
+        isLogined: false,
+        token: action.payload.token,
+        isIter: action.payload.isIter
       }
     case LOGIN_FAIL:
       return {
