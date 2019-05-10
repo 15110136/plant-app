@@ -52,7 +52,7 @@ class JobHistoryDetail extends Component {
               <Text style={styles.amountText}>800$</Text>
             </View>
             <Text style={styles.vatText}>
-              {`10$ X1 (Including VAT 10%)`}
+              {`800$ X1 (Including VAT 10%)`}
             </Text>
           </View>     
           <View style={styles.itemContainer}>
@@ -63,7 +63,7 @@ class JobHistoryDetail extends Component {
               <Text style={styles.amountText}>1000$</Text>
             </View>
             <Text style={styles.vatText}>
-              {`10$ X1 (Including VAT 10%)`}
+              {`1000$ X1 (Including VAT 10%)`}
             </Text>
           </View>     
           <View style={styles.itemContainer}>
@@ -71,10 +71,10 @@ class JobHistoryDetail extends Component {
               <View style={styles.titleContainer}>
                 <Text style={styles.titleText}>Main CPU</Text>
               </View>
-              <Text style={styles.amountText}>$358.00</Text>
+              <Text style={styles.amountText}>358.00$</Text>
             </View>
             <Text style={styles.vatText}>
-              {`10$ X1 (Including VAT 10%)`}
+              {`358.00$ X1 (Including VAT 10%)`}
             </Text>
           </View>  
           <View style={styles.itemContainer}>
@@ -82,10 +82,10 @@ class JobHistoryDetail extends Component {
               <View style={styles.titleContainer}>
                 <Text style={styles.titleText}>RAM</Text>
               </View>
-              <Text style={styles.amountText}>$450.5</Text>
+              <Text style={styles.amountText}>450.5$</Text>
             </View>
             <Text style={styles.vatText}>
-              {`10$ X1 (Including VAT 10%)`}
+              {`450.5$ X1 (Including VAT 10%)`}
             </Text>
           </View>  
         </View>
