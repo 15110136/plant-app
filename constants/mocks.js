@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 const categories = [
   {
     id: 'word',
@@ -85,9 +87,116 @@ const profile = {
   newsletter: false,
 };
 
+const data = [
+  {
+    name: 'Phần cứng',
+    amount: '$1,500',
+    date: moment(),
+    items: [
+      {
+        name: 'Monitor',
+        amount: '$85',
+      },
+      {
+        name: 'Main CPU',
+        amount: '$358.00',
+      },
+      {
+        name: 'RAM',
+        amount: '$450.5',
+      },
+    ],
+  },
+  {
+    name: 'Phần mềm',
+    amount: '$1,093',
+    date: moment(),
+    isReceived: true,
+    items: [
+      {
+        name: 'Win 10 Pro',
+        amount: '$100',
+      },
+      {
+        name: 'Photoshop Adobe',
+        amount: '$358.00',
+      },
+      {
+        name: 'kaspersky',
+        amount: '$450.5',
+      },
+      {
+        name:'Pubg',
+        amount:'$200'
+      },
+    ],
+  },
+  {
+    name: 'Phần cứng',
+    amount: '$893',
+    date: moment(),
+    isReceived: true,
+    items: [
+      {
+        name: 'Monitor',
+        amount: '$85',
+      },
+      {
+        name: 'Main CPU',
+        amount: '$358.00',
+      },
+      {
+        name: 'RAM',
+        amount: '$450.5',
+      },
+    ],
+  },
+  {
+    name: 'Phần cứng',
+    amount: '$375.37',
+    date: moment(),
+    isReceived: false,
+    items: [
+      {
+        name: 'Monitor',
+        amount: '$85',
+      },
+      {
+        name: 'Main CPU',
+        amount: '$358.00',
+      },
+      {
+        name: 'RAM',
+        amount: '$450.5',
+      },
+    ],
+  },
+  {
+    name: 'Phần cứng',
+    amount: '$151.33',
+    date: moment(),
+    isReceived: true,
+    items: [
+      {
+        name: 'Monitor',
+        amount: '$85',
+      },
+      {
+        name: 'Main CPU',
+        amount: '$358.00',
+      },
+      {
+        name: 'RAM',
+        amount: '$450.5',
+      },
+    ],
+  },
+];
+
 export {
   categories,
   explore,
   products,
   profile,
+  data,
 }

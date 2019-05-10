@@ -12,10 +12,13 @@ import {
   TouchableOpacity,
 } from 'react-native'
 import avatar from '../assets/images/avatar.png'
+
 const mainColor='#01C89E'
 
-export default class App extends React.Component {
+export default class Profile extends React.Component {
   render() {
+    const { navigation } = this.props;
+
     return (
       <ScrollView style={styles.scroll}>
         <View style={styles.container}>
@@ -86,8 +89,7 @@ export default class App extends React.Component {
                     </View>
                   </View>
                 </View>
-              </View>             
-             
+              </View>    
               <View>
                 <View style={styles.emailContainer}>
                   <View style={styles.iconRow}>                   
@@ -107,7 +109,7 @@ export default class App extends React.Component {
                   </View>
                 </View>
               </View>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => navigation.navigate('JobHistoryList')}>
                 <View style={styles.emailContainer}>
                   <View style={styles.iconRow}>                   
                       <Icon
@@ -133,8 +135,7 @@ export default class App extends React.Component {
               <Button
               style={styles.btnLogout}
               title="Log out"
-              color="gray"
-              onPress={() => {}}
+              color="gray"              
               />                    
           </Card>
         </View>      

@@ -14,7 +14,8 @@ import Map from '../screens/Map';
 import Profile from '../screens/Profile';
 import iterMap from '../screens/iterScreens/iterMap';
 import iterProfile from '../screens/iterScreens/iterProfile';
-
+import JobHistoryList from '../screens/JobHistoryList'
+import JobHistoryDetail from '../screens/JobHistoryDetail'
 import { theme } from '../constants';
 
 const role = 'client'
@@ -27,9 +28,11 @@ const client = createStackNavigator({
   Forgot,
   BookService,
   Profile,
+  JobHistoryList,
+  JobHistoryDetail,
   Explore,
   Product,
-  Settings,
+  Settings,  
 }, {
   defaultNavigationOptions: {
     headerStyle: {
