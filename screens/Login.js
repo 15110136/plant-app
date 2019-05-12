@@ -5,6 +5,7 @@ import { loginAction } from '../store/actions/index'
 
 import { Button, Block, Input, Text, Switch } from '../components';
 import { theme } from '../constants';
+import { disableGoBack } from '../utils/disableGoback';
 import { storeItem } from "../utils/asyncStorage";
 
 const VALID_EMAIL = "nhatthong34@gmail.com";
@@ -19,7 +20,7 @@ class Login extends Component {
     isIter: false
   }
 
-  handleLogin() {
+  async handleLogin() {
     const { navigation, loginAction } = this.props;
     const { email, password } = this.state;
     const errors = [];
@@ -41,10 +42,17 @@ class Login extends Component {
     this.setState({ errors, loading: false });
 
     if (!errors.length) {
-      storeItem('login', true).then(res => {
-        console.log('store success')
-        navigation.navigate("BookService");
-      }).catch(error => { console.log(error) })
+      await storeItem('login', true).then(res => {
+        if (this.state.isIter) {
+          storeItem('role', 'iter')
+          disableGoBack('iterMap', navigation)
+          // navigation.navigate('iter', {} , NavigationActions.navigate({ routeName: 'iterMap' }))
+        } else {
+          storeItem('role', 'client')
+          navigation.navigate('client', {} , NavigationActions.navigate({ routeName: 'BookService' }))
+        }
+      })
+
     }
   }
 
@@ -84,7 +92,10 @@ class Login extends Component {
               <Text h2 black bold>Bạn là Iter</Text>
               <Switch
                 value={this.state.isIter}
-                onValueChange={value => this.setState({ isIter: value })}
+                onValueChange={value => {
+                  console.log(value)
+                  return this.setState({ isIter: value })
+                }}
               />
             </Block>
 

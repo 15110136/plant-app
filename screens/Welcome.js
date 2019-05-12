@@ -4,6 +4,8 @@ import { Animated, Dimensions, Image, FlatList, Modal, StyleSheet, ScrollView } 
 import { Button, Block, Text } from '../components';
 import { theme } from '../constants';
 import { retrieveItem } from '../utils/asyncStorage'
+import { disableGoBack } from '../utils/disableGoback'
+import { NavigationActions } from 'react-navigation';
 
 const { width, height } = Dimensions.get('window');
 
@@ -123,14 +125,15 @@ class Welcome extends Component {
     )
   }
 
-  componentWillMount () {
-    retrieveItem('login')
-      .then(isLogin => {
-        if (isLogin) this.props.navigation.navigate('BookService')
-      })
-      .catch(error => {
-        console.log(error)
-      })
+  async componentWillMount () {
+    const isLogin = await retrieveItem('login')
+    const role = await retrieveItem('role')
+
+    if (isLogin && role) {
+      role === 'client' ?
+        this.props.navigation.navigate(role, {}, NavigationActions.navigate({ routeName: 'BookService' }))
+        : this.props.navigation.navigate(role, {}, NavigationActions.navigate({ routeName: 'iterMap' }))
+    }
   }
   
   render() {
@@ -140,7 +143,7 @@ class Welcome extends Component {
         <Block center bottom flex={0.4}>
           <Text h1 center bold>
             Hire &
-            <Text h1 primary>Find</Text>
+            <Text h1 primary> Find</Text>
           </Text>
           <Text h3 gray2 style={{ marginTop: theme.sizes.padding / 2 }}>
             Cảm ơn sự lựa chọn của bạn
