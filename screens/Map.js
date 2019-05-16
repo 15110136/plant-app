@@ -1,30 +1,44 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import {
   Text,
   StyleSheet,
   View,
   FlatList,
   Dimensions,
-  TouchableOpacity,
-  TouchableWithoutFeedback
+  TouchableOpacity
 } from "react-native";
 
+import { Button } from "../components";
 import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 import Modal from "react-native-modal";
-import Dropdown from "react-native-modal-dropdown";
-import { FontAwesome, Ionicons } from "@expo/vector-icons";
+import Geocoder from "react-native-geocoding";
+
+import {
+  FontAwesome,
+  Ionicons,
+  MaterialCommunityIcons
+} from "@expo/vector-icons";
+import Direction from "../components/Direction";
+import Details from "../components/Details";
 
 import { connect } from "react-redux";
 import { geocodingAction } from "../store/actions";
 
+import {
+  LocationBox,
+  LocationText } from "../components/Common";
+import { getPixelSize } from "../utils/getPixels";
 import * as theme from "../constants/theme";
+import { key } from "../constants/keys";
+
+import markerImage from '../assets/icons/marker.png'
 
 const { Marker } = MapView;
 const { height, width } = Dimensions.get("screen");
 const iterLocations = [
   {
     id: 1,
-    title: "ITer 1",
+    title: "Phạm Thành Phương",
     price: 50000,
     rating: 4.2,
     exp: 3,
@@ -37,11 +51,12 @@ const iterLocations = [
     skill: {
       hardware: "Normal",
       software: "Very Good"
-    }
+    },
+    address: 'Sư phạm kỹ thuật'
   },
   {
     id: 2,
-    title: "ITer 2",
+    title: "Nguyễn Hữu Nhân",
     price: 7000,
     rating: 3.8,
     exp: 2,
@@ -55,11 +70,11 @@ Vững phần cứng`
   },
   {
     id: 3,
-    title: "ITer 3",
+    title: "Đàm Nhất Thống",
     price: 10000,
     rating: 4.9,
     exp: 5,
-    distance: 4000,
+    distance: 4,
     coordinate: {
       latitude: 10.815675,
       longitude: 106.7778735
@@ -68,51 +83,86 @@ Vững phần cứng`
   }
 ];
 
+Geocoder.init(key.geocoding)
 class Map extends Component {
   state = {
     date: new Date(),
-    hours: {},
     active: null,
     activeModal: null,
     region: null,
-    lastLat: null,
-    lastLong: null
+    destination: null,
+    duration: null,
+    location: null,
+    address: null,
+    booked: false
   };
 
-  componentWillMount() {
-    const { iters } = this.props;
-    const hours = {};
-
-    iters.map(iter => {
-      hours[iter.id] = 1;
-    });
-
-    this.setState({ hours });
-  }
-
   async componentDidMount() {
-    this.watchID = await navigator.geolocation.watchPosition(({ coords }) => {
-      let region = {
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-        latitudeDelta: 0.00922 * 1.5,
-        longitudeDelta: 0.00421 * 1.5
-      };
+    this.watchID = await navigator.geolocation.getCurrentPosition(
+      async ({ coords: { latitude, longitude} }) => {
+        let region = {
+          latitude,
+          longitude,
+          latitudeDelta: 0.00922 * 1.5,
+          longitudeDelta: 0.00421 * 1.5
+        };
 
-      this.onRegionChange(region, region.latitude, region.longitude);
+        const res = await Geocoder.from({ latitude, longitude })
+        const address = res.results[0].formatted_address
+        const location = address.substring(0, address.indexOf(","))
 
-      let geo = {
-        lat: coords.latitude,
-        lng: coords.longitude
-      };
+        this.setState({
+          location,
+          address,
+          region
+        })
+    },
+    () => {},
+    {
+      timeout: 2000,
+      enableHighAccuracy: true,
+      maximumAge: 1000
+    }
+    );
+  }
 
-      this.props.geocodingAction(geo);
+  handleLocationSelected = (data, { geometry }) => {
+    const {
+      location: { lat: latitude, lng: longitude }
+    } = geometry;
+
+    this.setState({
+      destination: {
+        latitude,
+        longitude,
+        title: data.structured_formatting.main_text
+      }
     });
+  };
+
+  bookITer = async (item) => {
+    const { coordinate: { latitude, longitude } } = item
+    await Geocoder.from({ latitude, longitude }).then(res => {
+      const address = res.results[0].formatted_address
+      const location = address.substring(0, address.indexOf(","))
+
+      this.setState({
+        active: item.id,
+        activeModal: item,
+        destination: {
+          latitude,
+          longitude,
+          title: location
+        },
+        booked: true
+      })
+    })
+    .catch(error => console.log(error))
   }
 
-  componentWillUnmount() {
-    navigator.geolocation.clearWatch(this.watchID);
-  }
+  handleBack = () => {
+    this.setState({ destination: null });
+  };
 
   onMapPress = e => {
     let region = {
@@ -136,40 +186,22 @@ class Map extends Component {
     });
   }
 
-  handleHours = (id, value) => {
-    const { hours } = this.state;
-    hours[id] = value;
-
-    this.setState({ hours });
-  };
-
-  handleDateChosen = date => {
-    this.setState({ date });
-  };
-
-  onRegionChange(region, lastLat, lastLong) {
-    this.setState({
-      region,
-      lastLat: lastLat || this.state.lastLat,
-      lastLong: lastLong || this.state.lastLong
-    });
-  }
-
   renderHeader() {
-    const { navigation, geocoding } = this.props;
+    const { navigation } = this.props;
+    const { address } = this.state;
     return (
       <View style={styles.header}>
         <View style={styles.headerIcon}>
-          <TouchableWithoutFeedback
+          <TouchableOpacity
             onPress={() => navigation.navigate("BookService")}
           >
             <Ionicons name="ios-menu" size={theme.sizes.icon * 1.5} />
-          </TouchableWithoutFeedback>
+          </TouchableOpacity>
         </View>
         <View style={{ flex: 1, justifyContent: "center" }}>
           <Text style={styles.headerTitle}>Địa điểm của bạn</Text>
           <Text style={styles.headerLocation}>
-            {geocoding.info ? geocoding.info[1].formatted_address : "Loading"}
+            { address || "Loading" }
           </Text>
         </View>
       </View>
@@ -180,43 +212,52 @@ class Map extends Component {
     return (
       <TouchableOpacity
         key={`iter-${item.id}`}
-        onPress={() => this.setState({ active: item.id, activeModal: item })}
       >
         <View style={[styles.iter, styles.shadow]}>
-          <View style={styles.hours}>
-            <Text style={styles.hoursTitle}>
-              x {item.spots} {item.title}
-            </Text>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={{ paddingRight: theme.sizes.base * 0.25 }}>2</Text>
-              <Text style={{ color: theme.colors.gray2 }}>Km</Text>
+          <View style={[styles.iterInfoContainer, { paddingLeft: theme.sizes.padding }]}>
+            <View>
+              <Text style={styles.iterName}>{item.title}</Text>
+            </View>
+            <View style={styles.iterIcon}>
+              <MaterialCommunityIcons
+                name="map-marker-distance"
+                size={theme.sizes.icon}
+                color={theme.colors.gray3}
+              />
+              <Text style={{ paddingLeft: theme.sizes.base * .5 }}>
+                Khoảng cách: {item.distance} Km
+              </Text>
+            </View>
+            <View style={styles.iterIcon}>
+              <Ionicons
+                name="ios-pricetag"
+                size={theme.sizes.icon}
+                color={theme.colors.gray3}
+              />
+              <Text style={{ paddingLeft: theme.sizes.base * .5 }}>
+                Giá tiền: ${item.price}
+              </Text>
+            </View>
+            <View style={styles.iterIcon}>
+              <Ionicons
+                name="ios-star"
+                size={theme.sizes.icon}
+                color={theme.colors.gray3}
+              />
+              <Text style={{ paddingLeft: theme.sizes.base * .5 }}>
+                Rating: {item.rating}
+              </Text>
             </View>
           </View>
-          <View style={styles.iterInfoContainer}>
-            <View style={styles.iterInfo}>
-              <View style={styles.iterIcon}>
-                <Ionicons
-                  name="ios-pricetag"
-                  size={theme.sizes.icon}
-                  color={theme.colors.gray3}
-                />
-                <Text style={{ marginLeft: theme.sizes.base }}>
-                  {" "}
-                  ${item.price}
-                </Text>
-              </View>
-              <View style={styles.iterIcon}>
-                <Ionicons
-                  name="ios-star"
-                  size={theme.sizes.icon}
-                  color={theme.colors.gray3}
-                />
-                <Text style={{ marginLeft: theme.sizes.base }}>
-                  {item.rating}
-                </Text>
-              </View>
-            </View>
-          </View>
+          <Button
+            style={{ marginTop: 20 }}
+            gradient
+            startColor={theme.colors.red}
+            endColor={theme.colors.red}
+            onPress={() => this.bookITer(item)}
+          >
+            <Text style={styles.btnBook} >Thuê ITer</Text>
+          </Button>
         </View>
       </TouchableOpacity>
     );
@@ -234,7 +275,7 @@ class Map extends Component {
         style={styles.iters}
         data={this.props.iters}
         extraData={this.state}
-        keyExtractor={(item, index) => `${item.id}`}
+        keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => this.renderIter(item)}
       />
     );
@@ -242,7 +283,7 @@ class Map extends Component {
 
   renderModal() {
     const { navigation } = this.props;
-    const { activeModal, hours } = this.state;
+    const { activeModal } = this.state;
 
     if (!activeModal) return null;
 
@@ -270,6 +311,17 @@ class Map extends Component {
                   }}
                 >
                   {activeModal.description}
+                </Text>
+              </View>
+              <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
+                <Ionicons
+                  name="ios-pin"
+                  size={theme.sizes.icon * 1.3}
+                  color={theme.colors.gray3}
+                />
+                <Text style={{ fontSize: theme.sizes.icon * 1.15 }}>
+                  {" "}
+                  {activeModal.address}
                 </Text>
               </View>
             </View>
@@ -304,28 +356,17 @@ class Map extends Component {
                 />
                 <Text style={{ fontSize: theme.sizes.icon * 1.15 }}>
                   {" "}
-                  {activeModal.price}km
+                  {activeModal.distance}km
                 </Text>
               </View>
             </View>
-            <View style={[styles.iterIcon, { justifyContent: "flex-start" }]}>
-                <Ionicons
-                  name="ios-pin"
-                  size={theme.sizes.icon * 1.3}
-                  color={theme.colors.gray3}
-                />
-                <Text style={{ fontSize: theme.sizes.icon * 1.15 }}>
-                  {" "}
-                  {activeModal.address}
-                </Text>
-              </View>
           </View>
-
           <View>
-            <TouchableOpacity style={styles.payBtn} onPress={() => navigation.navigate('Review') }>
-              <Text style={styles.payText}>
-                Proceed to pay ${activeModal.price * hours[activeModal.id]}
-              </Text>
+            <TouchableOpacity
+              style={styles.payBtn}
+              onPress={() => this.setState({ booked: true, activeModal: null })}
+            >
+              <Text style={styles.payText}>Thuê ITer</Text>
               <FontAwesome
                 name="angle-right"
                 size={theme.sizes.icon * 1.75}
@@ -340,41 +381,66 @@ class Map extends Component {
 
   render() {
     const { iters } = this.props;
-    const { region } = this.state;
+    const { region, location, destination, booked } = this.state;
     return (
       <View style={styles.container}>
         {this.renderHeader()}
         <MapView
-          initialRegion={region}
+          region={region}
           provider={PROVIDER_GOOGLE}
           showsUserLocation
-          showsCompass
+          loadingEnabled
+          ref={el => (this.mapView = el)}
           style={styles.map}
         >
-          {iters.map(iter => (
-            <Marker key={`marker-${iter.id}`} coordinate={iter.coordinate}>
-              <TouchableWithoutFeedback
-                onPress={() => this.setState({ active: iter.id })}
+          {destination && (
+            <Fragment>
+              <Direction
+                origin={region}
+                destination={destination}
+                onReady={res => {
+                  this.setState({ duration: Math.floor(res.duration) })
+
+                  this.mapView.fitToCoordinates(res.coordinates, {
+                    edgePadding: {
+                      right: getPixelSize(50),
+                      left: getPixelSize(50),
+                      top: getPixelSize(50),
+                      bottom: getPixelSize(350)
+                    }
+                  })
+                }}
+              />
+
+              <Marker
+                coordinate={destination}
+                anchor={{ x: 0, y: 0 }}
+                image={require('../assets/icons/iter.png')}
               >
-                <View
-                  style={[
-                    styles.marker,
-                    styles.shadow,
-                    this.state.active === iter.id ? styles.active : null
-                  ]}
-                >
-                  <Text style={styles.markerPrice}>${iter.price}</Text>
-                  <Text style={styles.markerStatus}>
-                    {" "}
-                    ({iter.free}/{iter.spots})
-                  </Text>
-                </View>
-              </TouchableWithoutFeedback>
+                <LocationBox>
+                  <LocationText>{destination.title}</LocationText>
+                </LocationBox>
+              </Marker>
+            </Fragment>
+          )}
+
+          {destination ? (
+            <Fragment>
+              <Details
+                onBackdropPress={() => this.handleBack}
+              />
+            </Fragment>
+          ) : iters.map(iter => (
+            <Marker
+              key={`marker-${iter.id}`}
+              coordinate={iter.coordinate}
+              image={require('../assets/icons/iter.png')}
+            >
             </Marker>
           ))}
         </MapView>
-        {this.renderIters()}
-        {this.renderModal()}
+        {location && !booked && this.renderIters()}
+        {location && this.renderModal()}
       </View>
     );
   }
@@ -424,7 +490,7 @@ const styles = StyleSheet.create({
     fontWeight: "500"
   },
   map: {
-    flex: 4
+    flex: 1
   },
   iters: {
     position: "absolute",
@@ -437,10 +503,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: theme.colors.white,
     borderRadius: 6,
-    padding: theme.sizes.base,
+    padding: theme.sizes.base / 2,
     marginHorizontal: theme.sizes.base,
     width: width - 24 * 2,
     height: height * 0.2
+  },
+  btnBook: {
+    fontWeight: 'bold',
+    color: theme.colors.white,
+    flexWrap: 'wrap'
+  },
+  iterName: {
+    fontSize: theme.sizes.h2
   },
   marker: {
     flexDirection: "row",
@@ -465,16 +539,6 @@ const styles = StyleSheet.create({
   active: {
     borderColor: theme.colors.red
   },
-  hours: {
-    flex: 1,
-    flexDirection: "column",
-    marginLeft: theme.sizes.base / 2,
-    justifyContent: "space-evenly"
-  },
-  hoursTitle: {
-    fontSize: theme.sizes.text,
-    fontWeight: "500"
-  },
   hoursDropdown: {
     borderRadius: theme.sizes.base / 2,
     borderColor: theme.colors.overlay,
@@ -491,14 +555,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.sizes.base / 2,
     marginVertical: -(theme.sizes.base + 1)
   },
-  iterInfoContainer: { flex: 1.5, flexDirection: "row" },
+  iterInfoContainer: {
+    textAlign: "left",
+    flex: 1.5,
+    flexDirection: "column"
+  },
   iterInfo: {
+    flexDirection: "row",
     justifyContent: "space-evenly",
     marginHorizontal: theme.sizes.base * 1.5
   },
   iterIcon: {
-    flexDirection: "row",
-    justifyContent: "space-between"
+    flexDirection: "row"
   },
   modalContainer: {
     margin: 0,
@@ -513,9 +581,9 @@ const styles = StyleSheet.create({
     borderTopRightRadius: theme.sizes.base
   },
   modalHead: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: theme.sizes.base * .3,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: theme.sizes.base * 0.3,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.overlay
   },
@@ -526,12 +594,6 @@ const styles = StyleSheet.create({
   },
   modalHours: {
     paddingVertical: height * 0.11
-  },
-  modalHoursDropdown: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: theme.sizes.base
   },
   payBtn: {
     borderRadius: 6,

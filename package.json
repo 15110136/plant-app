@@ -11,10 +11,12 @@
     "expo": "^32.0.0",
     "react": "16.5.0",
     "react-native": "https://github.com/expo/react-native/archive/sdk-32.0.0.tar.gz",
+    "react-native-animation-layout": "0.0.13",
     "react-native-checkbox-group": "^1.0.3",
-    "react-native-grading": "^1.0.3",
     "react-native-elements": "^1.1.0",
+    "react-native-geocoding": "^0.3.0",
     "react-native-maps": "^0.24.2",
+    "react-native-maps-directions": "^1.6.0",
     "react-native-modal": "^9.0.0",
     "react-native-modal-dropdown": "^0.6.2",
     "react-native-simple-radio-button": "^2.7.3",
@@ -25,7 +27,7 @@
     "react-redux": "^6.0.0",
     "redux": "^4.0.1",
     "redux-saga": "^1.0.2",
-    "yarn": "^1.15.2"
+    "styled-components": "^4.2.0"
   },
   "devDependencies": {
     "babel-preset-expo": "^5.0.0"
