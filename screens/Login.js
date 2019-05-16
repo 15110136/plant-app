@@ -7,6 +7,7 @@ import { Button, Block, Input, Text, Switch } from '../components';
 import { theme } from '../constants';
 import { disableGoBack } from '../utils/disableGoback';
 import { storeItem } from "../utils/asyncStorage";
+import { NavigationActions } from 'react-navigation';
 
 const VALID_EMAIL = "nhatthong34@gmail.com";
 const VALID_PASSWORD = "thong123";
@@ -45,8 +46,7 @@ class Login extends Component {
       await storeItem('login', true).then(res => {
         if (this.state.isIter) {
           storeItem('role', 'iter')
-          disableGoBack('iterMap', navigation)
-          // navigation.navigate('iter', {} , NavigationActions.navigate({ routeName: 'iterMap' }))
+          navigation.navigate('iter', {} , NavigationActions.navigate({ routeName: 'iterMap' }))
         } else {
           storeItem('role', 'client')
           navigation.navigate('client', {} , NavigationActions.navigate({ routeName: 'BookService' }))

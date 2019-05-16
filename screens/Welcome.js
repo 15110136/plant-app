@@ -4,7 +4,6 @@ import { Animated, Dimensions, Image, FlatList, Modal, StyleSheet, ScrollView } 
 import { Button, Block, Text } from '../components';
 import { theme } from '../constants';
 import { retrieveItem } from '../utils/asyncStorage'
-import { disableGoBack } from '../utils/disableGoback'
 import { NavigationActions } from 'react-navigation';
 
 const { width, height } = Dimensions.get('window');

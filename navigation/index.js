@@ -95,12 +95,14 @@ const iter = createStackNavigator(
   }
 );
 export default createAppContainer(
-  createSwitchNavigator({
-    authen,
-    client,
-    iter
-  },
-  {
-    initialRouteName: 'authen'
-  })
+  createSwitchNavigator(
+    {
+      authen,
+      client,
+      iter
+    },
+    {
+      initialRouteName: "authen"
+    }
+  )
 );
