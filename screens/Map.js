@@ -147,20 +147,21 @@ class Map extends Component {
       const location = address.substring(0, address.indexOf(","))
 
       this.setState({
-        active: item.id,
-        activeModal: item,
         destination: {
           latitude,
           longitude,
           title: location
         },
-        booked: true
+        active: item,
+        booked: true,
+        activeModal: null
       })
     })
     .catch(error => console.log(error))
   }
 
   handleBack = () => {
+    this.props.navigation.navigate("BookService")
     this.setState({ destination: null });
   };
 
@@ -187,22 +188,19 @@ class Map extends Component {
   }
 
   renderHeader() {
-    const { navigation } = this.props;
     const { address } = this.state;
     return (
       <View style={styles.header}>
         <View style={styles.headerIcon}>
           <TouchableOpacity
-            onPress={() => navigation.navigate("BookService")}
+            onPress={() => this.handleBack}
           >
             <Ionicons name="ios-menu" size={theme.sizes.icon * 1.5} />
           </TouchableOpacity>
         </View>
         <View style={{ flex: 1, justifyContent: "center" }}>
           <Text style={styles.headerTitle}>Địa điểm của bạn</Text>
-          <Text style={styles.headerLocation}>
-            { address || "Loading" }
-          </Text>
+          <Text style={styles.headerLocation}>{address || "Loading"}</Text>
         </View>
       </View>
     );
@@ -254,9 +252,11 @@ class Map extends Component {
             gradient
             startColor={theme.colors.red}
             endColor={theme.colors.red}
-            onPress={() => this.bookITer(item)}
+            onPress={() => this.setState({
+              activeModal: item
+            })}
           >
-            <Text style={styles.btnBook} >Thuê ITer</Text>
+            <Text style={styles.btnBook} >Chọn ITer</Text>
           </Button>
         </View>
       </TouchableOpacity>
@@ -282,7 +282,6 @@ class Map extends Component {
   };
 
   renderModal() {
-    const { navigation } = this.props;
     const { activeModal } = this.state;
 
     if (!activeModal) return null;
@@ -364,7 +363,7 @@ class Map extends Component {
           <View>
             <TouchableOpacity
               style={styles.payBtn}
-              onPress={() => this.setState({ booked: true, activeModal: null })}
+              onPress={() => this.bookITer(activeModal)}
             >
               <Text style={styles.payText}>Thuê ITer</Text>
               <FontAwesome
@@ -381,7 +380,7 @@ class Map extends Component {
 
   render() {
     const { iters } = this.props;
-    const { region, location, destination, booked } = this.state;
+    const { region, location, destination, booked, active } = this.state;
     return (
       <View style={styles.container}>
         {this.renderHeader()}
@@ -427,6 +426,7 @@ class Map extends Component {
           {destination ? (
             <Fragment>
               <Details
+                iter={active}
                 onBackdropPress={() => this.handleBack}
               />
             </Fragment>
@@ -434,7 +434,7 @@ class Map extends Component {
             <Marker
               key={`marker-${iter.id}`}
               coordinate={iter.coordinate}
-              image={require('../assets/icons/iter.png')}
+              image={markerImage}
             >
             </Marker>
           ))}
