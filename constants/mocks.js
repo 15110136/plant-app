@@ -1,46 +1,71 @@
 const categories = [
   {
-    id: "word",
-    name: "Microsoft Word",
+    id: "1",
+    name: "Sửa máy in",
+    type: "printer",
     tags: ["phần mềm", "phần cứng"],
     count: 147,
     image: require("../assets/icons/word.png")
   },
   {
-    id: "excel",
-    name: "Excel",
+    id: "2",
+    name: "Sửa máy tính",
+    type: "laptop",
     tags: ["phần mềm", "phần cứng"],
     count: 16,
     image: require("../assets/icons/excel.png")
   },
   {
-    id: "photoshop",
-    name: "Adobe Photoshop",
+    id: "3",
+    name: "Sửa chữa mạng",
+    type: "network",
     tags: ["phần mềm", "phần cứng"],
     count: 68,
     image: require("../assets/icons/photoshop.png")
   },
   {
-    id: "net",
-    name: "Mạng trong nhà",
+    id: "4",
+    name: "Thiết lập camera",
+    type: "camera",
     tags: ["phần mềm", "full service"],
     count: 17,
     image: require("../assets/icons/browser.png")
   },
   {
-    id: "security",
+    id: "5",
     name: "Kaspersky",
+    type: "security",
     tags: ["phần mềm", "full service"],
     count: 47,
     image: require("../assets/icons/cloud.png")
   },
   {
-    id: "lightroom",
+    id: "6",
     name: "Adobe Lightroom",
+    type: "editor",
     tags: ["phần mềm", "full service"],
     count: 47,
     image: require("../assets/icons/lightroom.png")
   }
+];
+
+const trips = [
+  {
+    id: 1,
+    date: 'Hôm qua',
+    score: 4.3,
+    distance: '4.6 km',
+    clientName: 'Pham Thanh Phuong',
+    price: 500000,
+  },
+  {
+    id: 2,
+    date: '12-5-2019',
+    score: 4.8,
+    distance: '8.9 km',
+    clientName: 'Nguyen Huu Nhan',
+    price: 250000,
+  },
 ];
 
 const products = [
@@ -228,4 +253,4 @@ const historyRequest = [
   
 ];
 
-export { categories, explore, products, profile, historyRequest };
+export { categories, explore, products, profile, historyRequest, trips };

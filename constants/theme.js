@@ -13,6 +13,7 @@ const colors = {
   gray3: '#7D818A',
   black2: '#3D4448',
   overlay: '#C1BEC0',
+  success: '#00C88D',
 };
 
 const sizes = {
