@@ -107,6 +107,7 @@ export default class Block extends Component {
       right,
       top,
       bottom,
+      between,
       card,
       shadow,
       color,
@@ -132,6 +133,7 @@ export default class Block extends Component {
       right && styles.right,
       top && styles.top,
       bottom && styles.bottom,
+      between && styles.between,
       margin && { ...this.handleMargins() },
       padding && { ...this.handlePaddings() },
       card && styles.card,
@@ -189,6 +191,12 @@ export const styles = StyleSheet.create({
   },
   bottom: {
     justifyContent: 'flex-end',
+  },
+  between: {
+    justifyContent: 'space-between'
+  },
+  around: {
+    justifyContent: 'space-around'
   },
   shadow: {
     shadowColor: theme.colors.black,

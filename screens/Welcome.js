@@ -131,7 +131,7 @@ class Welcome extends Component {
     if (isLogin && role) {
       role === 'client' ?
         this.props.navigation.navigate(role, {}, NavigationActions.navigate({ routeName: 'BookService' }))
-        : this.props.navigation.navigate(role, {}, NavigationActions.navigate({ routeName: 'iterMap' }))
+        : this.props.navigation.navigate(role, {}, NavigationActions.navigate({ routeName: 'iter' }))
     }
   }
   

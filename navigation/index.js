@@ -19,6 +19,7 @@ import Profile from "../screens/Profile";
 import Review from "../screens/Review";
 import iterMap from "../screens/iterScreens/iterMap";
 import iterProfile from "../screens/iterScreens/iterProfile";
+import Overview from "../screens/iterScreens/Overview";
 
 import { theme } from "../constants";
 
@@ -74,6 +75,7 @@ const client = createStackNavigator(
 
 const iter = createStackNavigator(
   {
+    Overview,
     iterMap,
     iterProfile
   },

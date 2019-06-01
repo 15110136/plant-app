@@ -1,9 +1,9 @@
-import { LOGIN, LOGIN_SUCCESS, LOGIN_FAIL } from "../../actionType";
+import { LOGIN, LOGIN_SUCCESS, LOGIN_FAIL, REGISTER, REGISTER_FAIL, REGISTER_SUCCESSS } from "../../actionType";
 
 const initialState = {
   isLogined: false,
   isFetching: false,
-  token: 0,
+  token: '',
 }
 
 export default loginReducer = (state = initialState, action) => {
@@ -17,7 +17,8 @@ export default loginReducer = (state = initialState, action) => {
       return {
         ...state,
         isFetching: false,
-        token: action.payload
+        token: action.payload,
+        isLogined: true
       }
     case LOGIN_FAIL:
       return {
@@ -25,7 +26,24 @@ export default loginReducer = (state = initialState, action) => {
         isFetching: false,
         error: action.payload
       }
-    
+    case REGISTER:
+      return {
+        ...state,
+        isFetching: true
+      }
+    case REGISTER_FAIL:
+      return {
+        ...state,
+        isFetching: false,
+        error: action.payload
+      }
+    case REGISTER_SUCCESSS:
+      return {
+        ...state,
+        isFetching: false,
+        token: action.payload,
+        isLogined: true
+      }
     default:
       return state
   }

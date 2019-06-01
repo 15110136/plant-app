@@ -7,20 +7,21 @@ export function* watchGeocodingAsync () {
 }
 
 function* geocodingAsync (action) {
-  const { lat, lng } = action.geo
-  let latlng = lat + ',' + lng
+  console.log(action.geo)
+  // const { lat, lng } = action.geo
+  // let latlng = lat + ',' + lng
   
-  try {
-    const data = yield api.getAddreesFromGeo(latlng)
-    yield put({
-      type: GEOCODING_FETCHING_SUCCESS,
-      data
-    })
-  } catch (error) {
-    console.log(error)
-    yield put({
-      type: GEOCODING_FETCHING_FAIL,
-      error
-    })
-  }
+  // try {
+  //   const data = yield api.getAddreesFromGeo(latlng)
+  //   yield put({
+  //     type: GEOCODING_FETCHING_SUCCESS,
+  //     data
+  //   })
+  // } catch (error) {
+  //   console.log(error)
+  //   yield put({
+  //     type: GEOCODING_FETCHING_FAIL,
+  //     error
+  //   })
+  // }
 }

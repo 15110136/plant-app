@@ -95,4 +95,5 @@ const styles = StyleSheet.create({
   gray2: { backgroundColor: theme.colors.gray2, },
   gray3: { backgroundColor: theme.colors.gray3, },
   gray4: { backgroundColor: theme.colors.gray4, },
+  success: { backgroundColor: theme.colors.success }
 });

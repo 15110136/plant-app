@@ -1,12 +1,12 @@
 import { call, all } from "redux-saga/effects"
 
-import { watchLoginAsync } from "./loginSaga";
-import { watchGeocodingAsync } from "./mapSaga";
+import { watchLoginAsync, watchRegisterAsync } from "./userSaga";
+import { watchFetchIter } from "./itersSaga";
 
 export default function* rootSaga () {
-  // yield call(watchGeocodingAsync)
   yield all([
     watchLoginAsync(),
-    watchGeocodingAsync()
+    watchRegisterAsync(),
+    watchFetchIter()
   ])
 }

@@ -25,6 +25,10 @@ class BookService extends Component {
     this.setState({ active: tab, categories: filtered });
   }
 
+  handleChoose = category => {
+    this.props.navigation.navigate('Map', {category: category})
+  }
+
   renderTab(tab) {
     const { active } = this.state;
     const isActive = active === tab;
@@ -77,7 +81,7 @@ class BookService extends Component {
             {categories.map(category => (
               <TouchableOpacity
                 key={category.name}
-                onPress={() => navigation.navigate('Map')}
+                onPress={() => this.handleChoose(category)}
               >
                 <Card center middle shadow style={styles.category}>
                   <Badge margin={[0, 0, 15]} size={50} color="rgba(41,216,143,0.20)">
